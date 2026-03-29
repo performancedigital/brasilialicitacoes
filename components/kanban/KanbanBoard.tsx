@@ -18,117 +18,33 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Bell, Clock, GripVertical, MoreHorizontal, Plus } from 'lucide-react'
 import { formatCurrency, getTimeUntil } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type Stage = 'LEAD' | 'AVALIANDO' | 'ENCAMINHADO' | 'VENCIDO'
 
 interface KanbanItem {
-  id: string
+  id: string           // SavedBidding.id
+  biddingId: string
   title: string
   organ: string
   estimatedValue?: number | null
   openingDate?: string | null
   stage: Stage
   portal: string
-  notes?: string
+  notes?: string | null
 }
 
 const COLUMNS: { id: Stage; label: string; color: string; bg: string; border: string }[] = [
-  {
-    id: 'LEAD',
-    label: 'Lead',
-    color: 'text-blue-400',
-    bg: 'bg-blue-400/10',
-    border: 'border-blue-400/20',
-  },
-  {
-    id: 'AVALIANDO',
-    label: 'Avaliando',
-    color: 'text-neon',
-    bg: 'bg-neon/10',
-    border: 'border-neon/20',
-  },
-  {
-    id: 'ENCAMINHADO',
-    label: 'Encaminhado',
-    color: 'text-neon-purple',
-    bg: 'bg-neon-purple/10',
-    border: 'border-neon-purple/20',
-  },
-  {
-    id: 'VENCIDO',
-    label: 'Vencido',
-    color: 'text-green-400',
-    bg: 'bg-green-400/10',
-    border: 'border-green-400/20',
-  },
+  { id: 'LEAD', label: 'Lead', color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
+  { id: 'AVALIANDO', label: 'Avaliando', color: 'text-neon', bg: 'bg-neon/10', border: 'border-neon/20' },
+  { id: 'ENCAMINHADO', label: 'Encaminhado', color: 'text-neon-purple', bg: 'bg-neon-purple/10', border: 'border-neon-purple/20' },
+  { id: 'VENCIDO', label: 'Vencido', color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
 ]
 
-const INITIAL_ITEMS: KanbanItem[] = [
-  {
-    id: 'k1',
-    title: 'Fornecimento de Equipamentos TI — Prefeitura SP',
-    organ: 'Prefeitura Municipal de São Paulo',
-    estimatedValue: 234500,
-    openingDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2).toISOString(),
-    stage: 'LEAD',
-    portal: 'PNCP',
-  },
-  {
-    id: 'k2',
-    title: 'Serviços de Limpeza — TRF 3ª Região',
-    organ: 'Tribunal Regional Federal',
-    estimatedValue: 890000,
-    openingDate: new Date(Date.now() + 1000 * 60 * 60 * 36).toISOString(),
-    stage: 'AVALIANDO',
-    portal: 'Compras.gov',
-    notes: 'Verificar certidão FGTS antes do prazo',
-  },
-  {
-    id: 'k3',
-    title: 'Mobiliário para Secretaria de Educação — BH',
-    organ: 'Secretaria de Educação MG',
-    estimatedValue: 145200,
-    openingDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 5).toISOString(),
-    stage: 'AVALIANDO',
-    portal: 'BLL',
-  },
-  {
-    id: 'k4',
-    title: 'Desenvolvimento de Software — DETRAN-GO',
-    organ: 'DETRAN-GO',
-    estimatedValue: 1850000,
-    openingDate: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(),
-    stage: 'ENCAMINHADO',
-    portal: 'PNCP',
-    notes: 'Proposta técnica enviada. Aguardando abertura.',
-  },
-  {
-    id: 'k5',
-    title: 'Energia Solar em Prédios Públicos — PE',
-    organ: 'Governo do Estado de Pernambuco',
-    estimatedValue: 12500000,
-    openingDate: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
-    stage: 'VENCIDO',
-    portal: 'Compras.gov',
-    notes: 'Contrato assinado em 15/01/2025. Valor final: R$ 11.800.000',
-  },
-]
-
-// ─── Kanban Card ──────────────────────────────────────────────────────────────
-
-function KanbanCard({
-  item,
-  isDragging,
-}: {
-  item: KanbanItem
-  isDragging?: boolean
-}) {
+function KanbanCard({ item, isDragging }: { item: KanbanItem; isDragging?: boolean }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging: isSortableDragging } =
     useSortable({ id: item.id })
 
@@ -139,9 +55,7 @@ function KanbanCard({
   }
 
   const timeUntil = getTimeUntil(item.openingDate)
-  const isUrgent =
-    item.openingDate != null &&
-    new Date(item.openingDate).getTime() - Date.now() < 86400000 * 2
+  const isUrgent = item.openingDate != null && new Date(item.openingDate).getTime() - Date.now() < 86400000 * 2
 
   return (
     <div
@@ -154,17 +68,11 @@ function KanbanCard({
       )}
     >
       <div className="flex items-start gap-2">
-        <div
-          {...attributes}
-          {...listeners}
-          className="mt-0.5 flex-shrink-0 text-slate-600 hover:text-slate-400 transition-colors"
-        >
+        <div {...attributes} {...listeners} className="mt-0.5 flex-shrink-0 text-slate-600 hover:text-slate-400 transition-colors">
           <GripVertical size={14} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] text-neon font-mono mb-1.5">
-            {item.portal}
-          </p>
+          <p className="text-[10px] text-neon font-mono mb-1.5">{item.portal}</p>
           <h4 className="text-white text-xs font-semibold leading-snug line-clamp-2 group-hover:text-neon transition-colors">
             {item.title}
           </h4>
@@ -187,12 +95,7 @@ function KanbanCard({
           <button className="p-1 text-slate-600 hover:text-yellow-400 transition-colors">
             <Bell size={12} />
           </button>
-          <div
-            className={cn(
-              'flex items-center gap-1 text-[10px] font-medium',
-              isUrgent ? 'text-red-400' : 'text-slate-500'
-            )}
-          >
+          <div className={cn('flex items-center gap-1 text-[10px] font-medium', isUrgent ? 'text-red-400' : 'text-slate-500')}>
             <Clock size={10} />
             {timeUntil}
           </div>
@@ -202,66 +105,33 @@ function KanbanCard({
   )
 }
 
-// ─── Kanban Column ────────────────────────────────────────────────────────────
-
-function KanbanColumn({
-  column,
-  items,
-}: {
-  column: (typeof COLUMNS)[number]
-  items: KanbanItem[]
-}) {
+function KanbanColumn({ column, items }: { column: typeof COLUMNS[number]; items: KanbanItem[] }) {
   const totalValue = items.reduce((sum, i) => sum + (i.estimatedValue ?? 0), 0)
 
   return (
     <div className="flex flex-col min-w-[280px] max-w-[320px] flex-1">
-      {/* Column header */}
-      <div
-        className={cn(
-          'flex items-center justify-between px-4 py-3 rounded-xl mb-3 border',
-          column.bg,
-          column.border
-        )}
-      >
+      <div className={cn('flex items-center justify-between px-4 py-3 rounded-xl mb-3 border', column.bg, column.border)}>
         <div className="flex items-center gap-2.5">
           <div className={cn('w-2 h-2 rounded-full', column.color.replace('text-', 'bg-'))} />
           <span className={cn('font-bold text-sm', column.color)}>{column.label}</span>
-          <span
-            className={cn(
-              'text-[10px] font-black px-1.5 py-0.5 rounded-full',
-              column.bg,
-              column.color,
-              'border',
-              column.border
-            )}
-          >
+          <span className={cn('text-[10px] font-black px-1.5 py-0.5 rounded-full border', column.bg, column.color, column.border)}>
             {items.length}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-slate-600 text-[10px]">
-            {formatCurrency(totalValue)}
-          </span>
-          <button
-            className={cn(
-              'p-1 rounded-lg transition-colors',
-              column.color,
-              'hover:opacity-80'
-            )}
-          >
+          <span className="text-slate-600 text-[10px]">{formatCurrency(totalValue)}</span>
+          <button className={cn('p-1 rounded-lg transition-colors', column.color, 'hover:opacity-80')}>
             <Plus size={14} />
           </button>
         </div>
       </div>
 
-      {/* Cards */}
       <div className="flex-1 space-y-2.5 min-h-[200px]">
         <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
           {items.map((item) => (
             <KanbanCard key={item.id} item={item} />
           ))}
         </SortableContext>
-
         {items.length === 0 && (
           <div className="flex items-center justify-center h-24 border-2 border-dashed border-white/10 rounded-xl">
             <p className="text-slate-600 text-xs">Arraste cartões aqui</p>
@@ -272,100 +142,126 @@ function KanbanColumn({
   )
 }
 
-// ─── Main Board ───────────────────────────────────────────────────────────────
+export interface KanbanBoardProps {
+  onStatsChange?: (stats: { total: number; avaliando: number; encaminhado: number; vencido: number }) => void
+}
 
-export function KanbanBoard() {
-  const [items, setItems] = useState<KanbanItem[]>(INITIAL_ITEMS)
+export function KanbanBoard({ onStatsChange }: KanbanBoardProps) {
+  const [items, setItems] = useState<KanbanItem[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
+  useEffect(() => {
+    fetch('/api/saved')
+      .then(r => r.json())
+      .then(json => {
+        const mapped: KanbanItem[] = (json.data ?? []).map((s: any) => ({
+          id: s.id,
+          biddingId: s.biddingId,
+          title: s.bidding?.title ?? 'Sem título',
+          organ: s.bidding?.organ ?? '',
+          estimatedValue: s.bidding?.estimatedValue ? Number(s.bidding.estimatedValue) : null,
+          openingDate: s.bidding?.openingDate ?? null,
+          stage: s.stage as Stage,
+          portal: s.bidding?.portal?.name ?? 'Portal',
+          notes: s.notes,
+        }))
+        setItems(mapped)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    onStatsChange?.({
+      total: items.length,
+      avaliando: items.filter(i => i.stage === 'AVALIANDO').length,
+      encaminhado: items.filter(i => i.stage === 'ENCAMINHADO').length,
+      vencido: items.filter(i => i.stage === 'VENCIDO').length,
     })
-  )
+  }, [items, onStatsChange])
 
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
   const activeItem = activeId ? items.find((i) => i.id === activeId) : null
 
-  function getItemsByStage(stage: Stage) {
-    return items.filter((i) => i.stage === stage)
-  }
+  function getItemsByStage(stage: Stage) { return items.filter((i) => i.stage === stage) }
 
-  function handleDragStart(event: DragStartEvent) {
-    setActiveId(event.active.id as string)
-  }
+  function handleDragStart(event: DragStartEvent) { setActiveId(event.active.id as string) }
 
   function handleDragOver(event: DragOverEvent) {
     const { active, over } = event
+    if (!over) return
+    const activeItem = items.find((i) => i.id === active.id)
+    if (!activeItem) return
+    const overColumn = COLUMNS.find((c) => c.id === over.id)
+    if (overColumn && activeItem.stage !== overColumn.id) {
+      setItems((prev) => prev.map((item) => item.id === active.id ? { ...item, stage: overColumn.id } : item))
+      return
+    }
+    const overItem = items.find((i) => i.id === over.id)
+    if (overItem && activeItem.stage !== overItem.stage) {
+      setItems((prev) => prev.map((item) => item.id === active.id ? { ...item, stage: overItem.stage } : item))
+    }
+  }
+
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    setActiveId(null)
     if (!over) return
 
     const activeItem = items.find((i) => i.id === active.id)
     if (!activeItem) return
 
-    // Check if over a column id
-    const overColumn = COLUMNS.find((c) => c.id === over.id)
-    if (overColumn && activeItem.stage !== overColumn.id) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === active.id ? { ...item, stage: overColumn.id } : item
-        )
-      )
-      return
+    // Reorder within same column
+    if (active.id !== over.id) {
+      const overItem = items.find((i) => i.id === over.id)
+      if (overItem && activeItem.stage === overItem.stage) {
+        const stageItems = items.filter((i) => i.stage === activeItem.stage)
+        const oldIndex = stageItems.findIndex((i) => i.id === active.id)
+        const newIndex = stageItems.findIndex((i) => i.id === over.id)
+        if (oldIndex !== -1 && newIndex !== -1) {
+          const reordered = arrayMove(stageItems, oldIndex, newIndex)
+          setItems([...items.filter((i) => i.stage !== activeItem.stage), ...reordered])
+        }
+      }
     }
 
-    // Check if over another item
-    const overItem = items.find((i) => i.id === over.id)
-    if (overItem && activeItem.stage !== overItem.stage) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === active.id ? { ...item, stage: overItem.stage } : item
-        )
-      )
-    }
+    // Persist stage to API
+    try {
+      await fetch(`/api/saved/${activeItem.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stage: activeItem.stage }),
+      })
+    } catch {}
   }
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event
-    setActiveId(null)
-
-    if (!over) return
-    if (active.id === over.id) return
-
-    const activeItem = items.find((i) => i.id === active.id)
-    const overItem = items.find((i) => i.id === over.id)
-
-    if (!activeItem || !overItem) return
-    if (activeItem.stage !== overItem.stage) return
-
-    const stageItems = items.filter((i) => i.stage === activeItem.stage)
-    const oldIndex = stageItems.findIndex((i) => i.id === active.id)
-    const newIndex = stageItems.findIndex((i) => i.id === over.id)
-
-    if (oldIndex === -1 || newIndex === -1) return
-
-    const reordered = arrayMove(stageItems, oldIndex, newIndex)
-    const otherItems = items.filter((i) => i.stage !== activeItem.stage)
-
-    setItems([...otherItems, ...reordered])
+  if (loading) {
+    return (
+      <div className="flex gap-4 overflow-x-auto pb-4">
+        {COLUMNS.map((col) => (
+          <div key={col.id} className="min-w-[280px] flex-1">
+            <div className={cn('px-4 py-3 rounded-xl mb-3 border animate-pulse', col.bg, col.border)}>
+              <span className={cn('font-bold text-sm', col.color)}>{col.label}</span>
+            </div>
+            <div className="space-y-2.5">
+              {[1, 2].map(i => (
+                <div key={i} className="bg-white/5 border border-white/10 rounded-xl h-24 animate-pulse" />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-    >
+    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {COLUMNS.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            column={column}
-            items={getItemsByStage(column.id)}
-          />
+          <KanbanColumn key={column.id} column={column} items={getItemsByStage(column.id)} />
         ))}
       </div>
-
       <DragOverlay>
         {activeItem ? <KanbanCard item={activeItem} isDragging /> : null}
       </DragOverlay>
