@@ -133,3 +133,104 @@ model Alert {
 
   @@index([userId])
 }
+
+// ============================================================
+// MODULO DE INTEGRACOES INTERNAS (substitui n8n)
+// ============================================================
+
+model IntegrationSource {
+  id                  String   @id @default(cuid())
+  code                String   @unique
+  name                String
+  baseUrl             String
+  authType            String   @default("none")
+  rateLimit           Int      @default(60)
+  supportsIncremental Boolean  @default(true)
+  isEnabled           Boolean  @default(true)
+  metadata            Json?
+  runs                IntegrationRun[]
+  cursors             IntegrationCursor[]
+  rawEvents           IntegrationRawEvent[]
+  deadLetters         IntegrationDeadLetter[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model IntegrationRun {
+  id            String            @id @default(cuid())
+  sourceId      String
+  source        IntegrationSource @relation(fields: [sourceId], references: [id])
+  status        RunStatus         @default(PENDING)
+  windowStart   DateTime
+  windowEnd     DateTime
+  totalFetched  Int               @default(0)
+  totalUpserted Int               @default(0)
+  totalErrors   Int               @default(0)
+  errorMessage  String?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime          @default(now())
+
+  @@index([sourceId, status])
+  @@index([createdAt])
+}
+
+model IntegrationCursor {
+  id        String            @id @default(cuid())
+  sourceId  String
+  source    IntegrationSource @relation(fields: [sourceId], references: [id])
+  endpoint  String
+  lastValue String
+  updatedAt DateTime          @updatedAt
+
+  @@unique([sourceId, endpoint])
+}
+
+model IntegrationRawEvent {
+  id           String            @id @default(cuid())
+  sourceId     String
+  source       IntegrationSource @relation(fields: [sourceId], references: [id])
+  runId        String
+  externalId   String
+  payloadHash  String
+  rawPayload   Json
+  status       EventStatus       @default(PENDING)
+  errorMessage String?
+  processedAt  DateTime?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@unique([sourceId, externalId])
+  @@index([runId])
+  @@index([status])
+}
+
+model IntegrationDeadLetter {
+  id           String            @id @default(cuid())
+  sourceId     String
+  source       IntegrationSource @relation(fields: [sourceId], references: [id])
+  runId        String
+  externalId   String
+  rawPayload   Json
+  errorMessage String
+  retryCount   Int               @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([sourceId])
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  PARTIAL
+  FAILED
+}
+
+enum EventStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  SKIPPED
+}

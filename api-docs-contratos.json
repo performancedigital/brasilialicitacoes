@@ -1,0 +1,302 @@
+﻿{
+    "openapi":  "3.0.0",
+    "info":  {
+                 "title":  "API Contratos.gov.br",
+                 "license":  {
+                                 "name":  "Apache 2.0",
+                                 "url":  "http://www.apache.org/licenses/LICENSE-2.0.html"
+                             },
+                 "version":  "1.0"
+             },
+    "servers":  [
+                    {
+                        "url":  "https://contratos.comprasnet.gov.br",
+                        "description":  "API Server"
+                    }
+                ],
+    "paths":  {
+                  "/api/v1/contrato/instrumento_cobranca/apropriar":  {
+                                                                          "post":  "@{tags=System.Object[]; summary=Apropria instrumento de cobranÃ§a; operationId=2e88ce35a4f93ddd2a59fa75e1d7a6c2; requestBody=; responses=; security=System.Object[]}"
+                                                                      },
+                  "/api/v1/contrato/apropriacao/editar":  {
+                                                              "put":  "@{tags=System.Object[]; summary=Edita apropriaÃ§Ã£o de instrumento de cobranÃ§a; operationId=b55288f4264841091ffba73c269c9b37; requestBody=; responses=; security=System.Object[]}"
+                                                          },
+                  "/api/v1/contrato/apropriacao/excluir":  {
+                                                               "delete":  "@{tags=System.Object[]; summary=Excluir apropriaÃ§Ã£o; description=Endpoint para excluir apropriaÃ§Ã£o que ainda nÃ£o foi enviada para o SIAFI; operationId=excluirApropriacao; requestBody=; responses=; security=System.Object[]}"
+                                                           },
+                  "/api/v1/contrato/apropriacao/cancelar":  {
+                                                                "put":  "@{tags=System.Object[]; summary=Cancela apropriaÃ§Ã£o; operationId=cancelaApropriacao; requestBody=; responses=; security=System.Object[]}"
+                                                            },
+                  "/api/v1/contrato/apropriacao/consultar/{contrato_id}":  {
+                                                                               "get":  "@{tags=System.Object[]; summary=Retorna os registros de apropriaÃ§Ãµes por contrato.; description=; operationId=3eea195a12dea58fd238555eb51fcc42; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                           },
+                  "/api/v1/inst_cobranca/consultar":  {
+                                                          "get":  "@{tags=System.Object[]; summary=Retorna pagamento dos instrumentos de cobranÃ§a.; description=Pagamento dos instrumentos de cobranÃ§a no sistema Contratos.gov.br; operationId=bb98cc94e79acc3d546221de39cb7937; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                      },
+                  "/api/v1/execucoes/contratos/{contrato_id}":  {
+                                                                    "get":  "@{tags=System.Object[]; summary=Retorna uma lista de ordens de serviÃ§o ou fornecimento associados a um contrato.; description=; operationId=c39dc0014917aa15f91a955b2450d3d0; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                },
+                  "/api/v1/comprasnet/compras/impedimentos":  {
+                                                                  "post":  "@{tags=System.Object[]; summary=Retorna se itens de uma compra estÃ£o vinculados a Atas, Contratos e/ou Empenhos; description=; operationId=0c6287fc2498804543e5c37abaaa7ab0; requestBody=; responses=; security=System.Object[]}"
+                                                              },
+                  "/api/contrato/orgaos":  {
+                                               "get":  "@{tags=System.Object[]; summary=Retorna uma lista de orgÃ£os com contratos ativos; description=; operationId=96e658e8ab86f1744f325d8f24bf7090; responses=}"
+                                           },
+                  "/api/contrato/unidades":  {
+                                                 "get":  "@{tags=System.Object[]; summary=Retorna todas as unidades com contratos ativos; description=; operationId=d41f18c79c69095595c46e8f277a5b28; responses=}"
+                                             },
+                  "/api/v1/contrato/cronogramas":  {
+                                                       "get":  "@{tags=System.Object[]; summary=Retorna todos os cronogramas alterados em um determinado perÃ­odo.; description=; operationId=505b0fb48569bf641c48a0252c75f3be; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                   },
+                  "/api/contrato/{contrato_id}/cronograma":  {
+                                                                 "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os cronogramas do contrato; description=; operationId=0859dc089f63c64e5ee94507de3244b0; parameters=System.Object[]; responses=}"
+                                                             },
+                  "/api/v1/contrato/empenhos":  {
+                                                    "get":  "@{tags=System.Object[]; summary=Retorna todos os empenhos (do tipo contrato) alterados em um determinado perÃ­odo.; description=; operationId=f468d03c4cec8f864ca128cdd9225abc; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                },
+                  "/api/contrato/{contrato_id}/empenhos":  {
+                                                               "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os empenhos do contrato; description=; operationId=aa3eff15c38c47b763f2ba6455bbe0be; parameters=System.Object[]; responses=}"
+                                                           },
+                  "/api/v1/contrato/historicos":  {
+                                                      "get":  "@{tags=System.Object[]; summary=Retorna os historicos de todos os contratos alterados em um determinado perÃ­odo.; description=; operationId=98afe97f8b1c032fa0066ed533728c0b; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                  },
+                  "/api/contrato/{contrato_id}/historico":  {
+                                                                "get":  "@{tags=System.Object[]; summary=Retorna uma lista com o histÃ³rico de um determinado contrato; description=; operationId=dc0f64e810d0141fe292afdccfda5be1; parameters=System.Object[]; responses=}"
+                                                            },
+                  "/api/v1/contrato/garantias":  {
+                                                     "get":  "@{tags=System.Object[]; summary=Retorna todas as garantias de contrato alteradas em um determinado perÃ­odo.; description=; operationId=c8501a894087b431107342bec0765dc9; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                 },
+                  "/api/contrato/{contrato_id}/garantias":  {
+                                                                "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todas as garantias do contrato; description=; operationId=fe18aa8df3a60e19999af848200a3a52; parameters=System.Object[]; responses=}"
+                                                            },
+                  "/api/v1/contrato/itens":  {
+                                                 "get":  "@{tags=System.Object[]; summary=Retorna todos os itens dos contratos alterados em um determinado perÃ­odo.; description=; operationId=5553ed9d50252e0f702ea3a2f69356d8; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                             },
+                  "/api/v1/contrato/{contrato_id}/itens":  {
+                                                               "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os itens do contrato; description=; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                           },
+                  "/api/contrato/{contrato_id}/itens":  {
+                                                            "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os itens do contrato; description=; operationId=5bc152516e8383987b62bcc03b73f5f9; parameters=System.Object[]; responses=}"
+                                                        },
+                  "/api/v1/contrato/prepostos":  {
+                                                     "get":  "@{tags=System.Object[]; summary=Retorna todos os prepostos de contrato alterados em um determinado perÃ­odo.; description=; operationId=32ff044cbd0708710a7965f480e38d0e; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                 },
+                  "/api/contrato/{contrato_id}/prepostos":  {
+                                                                "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os prepostos do contrato; description=; operationId=6fbfcb85939bcceb4946b2e64b4beb81; parameters=System.Object[]; responses=}"
+                                                            },
+                  "/api/v1/contrato/responsaveis":  {
+                                                        "get":  "@{tags=System.Object[]; summary=Retorna todos os responsÃ¡veis de contratos alterados em um determinado perÃ­odo.; description=; operationId=9bbd8bcc7ea5a9db311ee6dcce0eeeb9; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                    },
+                  "/api/contrato/{contrato_id}/responsaveis":  {
+                                                                   "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os responsÃ¡veis do contrato; description=; operationId=fb46829275ed3236d74825bdec1e52a9; parameters=System.Object[]; responses=}"
+                                                               },
+                  "/api/v2/contrato/{contrato_id}/responsaveis":  {
+                                                                      "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os responsÃ¡veis de um determinado contrato; description=; operationId=4a8ea0430640955973bc848eff9849bd; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                  },
+                  "/api/v1/contrato/despesas_acessorias":  {
+                                                               "get":  "@{tags=System.Object[]; summary=Retorna todas as despesas acessÃ³rias de contrato alteradas em um determinado perÃ­odo.; description=; operationId=b3362995c9f98aee454b0000e2c00659; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                           },
+                  "/api/contrato/{contrato_id}/despesas_acessorias":  {
+                                                                          "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todas as despesas acessÃ³rias do contrato; description=; operationId=65308fde112a5534613435e2710663ad; parameters=System.Object[]; responses=}"
+                                                                      },
+                  "/api/v1/contrato/faturas":  {
+                                                   "get":  "@{tags=System.Object[]; summary=Retorna todas as faturas de contrato alteradas em um determinado perÃ­odo.; description=; operationId=f1f7c3e4d0a2f78ab3057faddb0d7e7f; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                               },
+                  "/api/contrato/{contrato_id}/faturas":  {
+                                                              "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todas as faturas do contrato; description=; operationId=510842a15adc4bfc01cbd1882af57739; parameters=System.Object[]; responses=}"
+                                                          },
+                  "/api/v1/contrato/ocorrencias":  {
+                                                       "get":  "@{tags=System.Object[]; summary=Retorna todas as ocorrÃªncias alteradas em um determinado perÃ­odo.; description=; operationId=7128d41061e9dc76fe6e01f1c9f511a8; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                   },
+                  "/api/contrato/{contrato_id}/ocorrencias":  {
+                                                                  "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todas as ocorrÃªncias do contrato; description=; operationId=8c010b4860293f9a5b730b3b37145758; parameters=System.Object[]; responses=}"
+                                                              },
+                  "/api/v1/contrato/terceirizados":  {
+                                                         "get":  "@{tags=System.Object[]; summary=Retorna todos os terceirizados de contratos alterados em um determinado perÃ­odo.; description=; operationId=f307f6bdfc36fa7b24bda9d4f14fa122; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                     },
+                  "/api/contrato/{contrato_id}/terceirizados":  {
+                                                                    "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os terceirizados do contrato; description=; operationId=8d8e8fdfa81acbd3fa566c65ed050c1f; parameters=System.Object[]; responses=}"
+                                                                },
+                  "/api/v1/contrato/arquivos":  {
+                                                    "get":  "@{tags=System.Object[]; summary=Retorna todos os arquivos de contrato alterados em um determinado perÃ­odo.; description=; operationId=8faeedfa36f44d933c70a26c22838554; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                },
+                  "/api/contrato/{contrato_id}/arquivos":  {
+                                                               "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os arquivos do contrato; description=; operationId=5ef2bdedceb0abd9a98169d5243dea17; parameters=System.Object[]; responses=}"
+                                                           },
+                  "/api/v1/contrato":  {
+                                           "get":  "@{tags=System.Object[]; summary=Retorna todos os contratos alterados em um determinado perÃ­odo.; description=; operationId=d5c36f489e3dbb8eb5754631080bd33b; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                       },
+                  "/api/contrato/ugorigem/{codigo_uasg}/numeroano/{numero_contrato}":  {
+                                                                                           "get":  "@{tags=System.Object[]; summary=Retorna um Contrato ou Empenho (com forÃ§a de contrato) pelo cÃ³digo da UASG de origem e seu nÃºmero.; description=; operationId=eb35a844d340fed7bf5a9efa67f6410e; parameters=System.Object[]; responses=}"
+                                                                                       },
+                  "/api/contrato/ug/{unidade_codigo}":  {
+                                                            "get":  "@{tags=System.Object[]; summary=Retorna todos os contratos ativos de uma determinada UG; description=; parameters=System.Object[]; responses=}"
+                                                        },
+                  "/api/v1/contrato/ug/{unidade_codigo}":  {
+                                                               "get":  "@{tags=System.Object[]; summary=Retorna todos os contratos ativos de uma determinada UG; description=; operationId=46b2e3d64c5e41fad6dab7d17a79d827; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                           },
+                  "/api/v1/contrato/orgao/{orgao}":  {
+                                                         "get":  "@{tags=System.Object[]; summary=Retorna todos os contratos ativos de um determinado ÃrgÃ£o; description=; operationId=90f2594f37709c31227914945a504643; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                     },
+                  "/api/contrato/inativo/ug/{unidade_codigo}":  {
+                                                                    "get":  "@{tags=System.Object[]; summary=Retorna todos os contratos inativos de uma determinada UG; description=; operationId=0f444042e9edd4bfac5f2e192c00e62a; parameters=System.Object[]; responses=}"
+                                                                },
+                  "/api/v1/contrato/inativo/orgao/{orgao}":  {
+                                                                 "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todos os contratos inativos por ÃrgÃ£o; description=; operationId=6fb7cac9e7c6954e10e01a84acc166b2; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                             },
+                  "/api/v1/contrato/publicacoes":  {
+                                                       "get":  "@{tags=System.Object[]; summary=Retorna todas as publicaÃ§Ãµes de contratos alterados em um determinado perÃ­odo.; description=; operationId=6e05db41f9c0ce802b223eb4c2931179; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                   },
+                  "/api/contrato/{contrato_id}/publicacoes":  {
+                                                                  "get":  "@{tags=System.Object[]; summary=Retorna uma lista com todas as publicaÃ§Ãµes do contrato; description=; operationId=1f0e0700c3edbab4a5cefa6f47bee3a7; parameters=System.Object[]; responses=}"
+                                                              },
+                  "/api/contrato/id/{contrato_id}":  {
+                                                         "get":  "@{tags=System.Object[]; summary=Retorna um contrato pelo seu identificador Ãºnico (id); description=; operationId=7bdf8ea9678c578f794d32db62d965d3; parameters=System.Object[]; responses=}"
+                                                     },
+                  "/api/v1/contrato/faturas/edit/id_fatura/{fatura_id}/justificativa/{justificativa_id}/situacao/{situacao}/empenhos":  {
+                                                                                                                                            "put":  "@{tags=System.Object[]; summary=Atualiza uma fatura do contrato; description=; operationId=531e59b2b20c809f2f09512941f145fe; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                                                                                        },
+                  "/api/contrato/{contrato_id}/domiciliobancario":  {
+                                                                        "get":  "@{tags=System.Object[]; summary=Retorna os registros do domicÃ­lio bancÃ¡rio de um determinado contrato.; description=; parameters=System.Object[]; responses=}"
+                                                                    },
+                  "/api/v1/contrato/{contrato_id}/domiciliobancario":  {
+                                                                           "get":  "@{tags=System.Object[]; summary=Retorna os registros do domicÃ­lio bancÃ¡rio de um determinado contrato.; description=; operationId=cdea9bea2b23a0c13a9c2d9a7a8eae85; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                       },
+                  "/api/v1/empenho/ano/{ano}/ug/{unidade}":  {
+                                                                 "get":  "@{tags=System.Object[]; summary=Retorna todos os empenhos de uma determinada UG pelo ano informado.; description=; operationId=b16aaa553fa7a707a65c510d4d4abbf8; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                             },
+                  "/api/v1/empenho/ug/{unidade}":  {
+                                                       "get":  "@{tags=System.Object[]; summary=Retorna todos os empenhos de uma determinada UG.; description=; operationId=f50f9a3161418a7b690e75e7cdf9860d; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                   },
+                  "/api/v1/empenho":  {
+                                          "get":  "@{tags=System.Object[]; summary=Retorna todos os empenhos alterados em um determinado perÃ­odo.; description=; operationId=076a48e51abe3af621f62ee98d181046; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                      },
+                  "/api/v2/empenho":  {
+                                          "get":  "@{tags=System.Object[]; summary=Retorna todos os empenhos alterados em um determinado perÃ­odo com paginaÃ§Ã£o.; description=; operationId=29bd4ab1364584f07ac5bdb1eec0f1bf; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                      },
+                  "/api/v1/empenho/rp":  {
+                                             "get":  "@{tags=System.Object[]; summary=Retorna todos os restos a pagar alterados em um determinado perÃ­odo.; description=; operationId=c18066a91e2eb84663f9e6aeb3cb0078; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                         },
+                  "/api/v1/empenho/pdm/{pdm}/ug/{unidade}/ano/{ano}":  {
+                                                                           "get":  "@{tags=System.Object[]; summary=Retorna empenhos por PDM; operationId=1dcf65c2229be6b20c841c694cce42bc; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                       },
+                  "/api/v1/empenho/codigoservico/{codigo}/ug/{unidade}/ano/{ano}":  {
+                                                                                        "get":  "@{tags=System.Object[]; summary=Retorna empenhos por cÃ³digo de serviÃ§o; operationId=25ab70fed9b82666835eab54c5c89ad8; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                                    },
+                  "/api/v1/empenho/ano/{ano}":  {
+                                                    "get":  "@{tags=System.Object[]; summary=Retorna uma lista de empenhos, de um determinado ano, que possuam contratos vinculados.; description=; operationId=6ad73d71b4437d4b47e0c1a9844a93ab; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                },
+                  "/api/v1/contrato/empenho/consultar/{empenho_id}":  {
+                                                                          "get":  "@{tags=System.Object[]; summary=Consulta os dados do empenho pelo id do empenho informado; operationId=bd325b546f393ba1ada8ea3dcb6c65d1; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                      },
+                  "/api/v1/fornecedor/contratos":  {
+                                                       "get":  "@{tags=System.Object[]; summary=Retorna todos os contratos ativos e/ou inativos de um fornecedor.; description=; operationId=6c3d8183c5186b207e97daf27e59b335; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                   },
+                  "/api/v1/amparo/consultar":  {
+                                                   "post":  "@{tags=System.Object[]; summary=Amparo Legal; operationId=7a4d2e3d035c7008d9e9feadd5c73a3a; requestBody=; responses=; security=System.Object[]}"
+                                               },
+                  "/api/v1/contrato/empenhoporuasg/{codigo_unidade_emitente}/{numero_empenho}":  {
+                                                                                                     "get":  "@{tags=System.Object[]; summary=Retorna uma lista de minutas que tÃªm forÃ§a de contrato, pela uasg e pelo nÃºmero do empenho; description=; operationId=526b01d1239cfe34bab860832a92383e; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                                                 },
+                  "/api/v1/minuta/uasg/{uasg_da_minuta}/ano/{ano}":  {
+                                                                         "get":  "@{tags=System.Object[]; summary=Retorna todas as minutas de empenho de uma UASG em um determinado Ano.; description=; operationId=513acd6404a4fd28f7363f23a9ed16c2; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                     },
+                  "/api/v1/contrato/nonce/consultar/{nonce}":  {
+                                                                   "get":  "@{tags=System.Object[]; summary=Consulta um NONCE; description=Consulta um NONCE com base no valor do parÃ¢metro \u0027nonce\u0027.; operationId=consultarNonce; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                               },
+                  "/api/v1/ordembancaria/consultar/{id_apropriacao}":  {
+                                                                           "get":  "@{tags=System.Object[]; summary=Retorna os registros de ordem bancÃ¡ria por apropriaÃ§Ã£o.; description=Retorna a lista de ordem bancÃ¡ria para uma apropriaÃ§Ã£o especÃ­fica.; operationId=025d80569b49ce36746b2c5749a2b63b; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                       },
+                  "/api/v1/ordembancaria/consultar/instrumento_cobranca/{id_instrumento_cobranca}":  {
+                                                                                                         "get":  "@{tags=System.Object[]; summary=Retorna os registros de ordem bancÃ¡ria por instrumento de cobranÃ§a.; description=Retorna a lista de ordem bancÃ¡ria para um instrumento de cobranÃ§a.; operationId=2847e7d2c1c801b0e5c30deff912120a; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                                                     },
+                  "/api/v1/auth/login":  {
+                                             "post":  "@{tags=System.Object[]; summary=AutenticaÃ§Ã£o; description=; operationId=60f236d54f635ef0f449fab993be148a; requestBody=; responses=}"
+                                         },
+                  "/api/v1/auth/logout":  {
+                                              "post":  "@{tags=System.Object[]; summary=Logout; description=Invalida o token JWT do usuÃ¡rio, efetivamente desconectando-o.; operationId=983f72126e5a4c1d4474acb821a29fe0; responses=; security=System.Object[]}"
+                                          },
+                  "/api/v1/usuario/ug/{unidade_codigo}":  {
+                                                              "get":  "@{tags=System.Object[]; summary=Retorna todos os usuÃ¡rios de uma determinada UG (Unidade Gestora); description=; operationId=7a5eb7d26bf56572d2cbcb8acb18b8f2; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                          },
+                  "/api/v1/usuario/ug/{unidade_codigo}/perfil/{grupo_id}":  {
+                                                                                "get":  "@{tags=System.Object[]; summary=Retorna todos os usuÃ¡rios de uma determinada UG (Unidade Gestora) por Perfil (Grupo); description=; operationId=591c7193a90c887e2326719050cf89dc; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                                            },
+                  "/api/v1/usuario/cpf/{cpf}":  {
+                                                    "get":  "@{tags=System.Object[]; summary=Retorna um determinado usuÃ¡rio pelo CPF informado.; description=; operationId=4feee902e2100b515665c4e29f6d906b; parameters=System.Object[]; responses=; security=System.Object[]}"
+                                                }
+              },
+    "components":  {
+                       "schemas":  {
+                                       "Contratos":  "@{properties=; type=object}",
+                                       "UnidadeGestora":  "@{properties=; type=object}",
+                                       "OrgaoOrigem":  "@{properties=; type=object}",
+                                       "Orgao":  "@{properties=; type=object}",
+                                       "Contratante":  "@{properties=; type=object}",
+                                       "Fornecedor":  "@{properties=; type=object}",
+                                       "Qualificacao":  "@{properties=; type=object}",
+                                       "Links":  "@{properties=; type=object}",
+                                       "ContratosUnidadeGestora":  "@{properties=; type=object}",
+                                       "Historicos":  "@{properties=; type=object}",
+                                       "Garantias":  "@{properties=; type=object}",
+                                       "DataInicioItem":  "@{properties=; type=object}",
+                                       "Itens":  "@{properties=; type=object}",
+                                       "ItensComHistorico":  "@{properties=; type=object}",
+                                       "Prepostos":  "@{properties=; type=object}",
+                                       "Responsaveis":  "@{properties=; type=object}",
+                                       "ResponsaveisV2":  "@{properties=; type=object}",
+                                       "ListaResponsaveis":  "@{properties=; type=object}",
+                                       "DespesasAcessorias":  "@{properties=; type=object}",
+                                       "PublicaÃ§Ãµes":  "@{properties=; type=object}",
+                                       "Faturas":  "@{properties=; type=object}",
+                                       "FaturasPorId":  "@{properties=; type=object}",
+                                       "AtualizaFatura":  "@{properties=; type=object}",
+                                       "DadosEmpenho":  "@{properties=; type=object}",
+                                       "DadosReferencia":  "@{properties=; type=object}",
+                                       "DadosItemFaturado":  "@{properties=; type=object}",
+                                       "Ocorrencias":  "@{properties=; type=object}",
+                                       "Terceirizados":  "@{properties=; type=object}",
+                                       "Arquivos":  "@{properties=; type=object}",
+                                       "Empenhos":  "@{properties=; type=object}",
+                                       "EmpenhosId":  "@{properties=; type=object}",
+                                       "EmpenhosUnidadeGestora":  "@{properties=; type=object}",
+                                       "EmpenhosV2":  "@{properties=; type=object}",
+                                       "EmpenhoItem":  "@{properties=; type=object}",
+                                       "EmpenhoItemServico":  "@{properties=; type=object}",
+                                       "EmpenhosCodigoServico":  "@{properties=; type=object}",
+                                       "EmpenhosPDM":  "@{properties=; type=object}",
+                                       "SemDados":  "@{properties=; type=object}",
+                                       "Cronograma":  "@{properties=; type=object}",
+                                       "OrgaoId":  "@{properties=; type=object}",
+                                       "FalhaAutenticaÃ§Ã£o":  "@{properties=; type=object}",
+                                       "Unidade":  "@{properties=; type=object}",
+                                       "Usuarios":  "@{properties=; type=object}",
+                                       "UsuariosUgPorPerfil":  "@{properties=; type=object}",
+                                       "ListaUsuariosUgPerfil":  "@{properties=; type=object}",
+                                       "Minutas":  "@{properties=; type=object}",
+                                       "TokenBearer":  "@{properties=; type=object}",
+                                       "Publicacoes":  "@{properties=; type=object}",
+                                       "ContratoPorId":  "@{properties=; type=object}",
+                                       "MinutasUasgAno":  "@{type=array; items=}",
+                                       "OrdensServicoFornecimento":  "@{properties=; type=object}",
+                                       "Minuta":  "@{properties=; type=object}",
+                                       "ItensMinuta":  "@{properties=; type=object}",
+                                       "ItensCompra":  "@{properties=; type=object}",
+                                       "DetalheItensCompra":  "@{properties=; type=object}",
+                                       "DomicilioBancario":  "@{properties=; type=object}",
+                                       "ListaDomicilioBancario":  "@{properties=; type=object}",
+                                       "EmpenhosComContratosVinculados":  "@{properties=; type=object}",
+                                       "auth_failure_jwt_token_expired":  "@{properties=; type=object}",
+                                       "empenho_not_found":  "@{properties=; type=object}",
+                                       "empenho_invalid_id":  "@{properties=; type=object}",
+                                       "consulta_empenho_por_id":  "@{properties=; type=object}",
+                                       "consulta_empenho_por_id_itens_compra":  "@{properties=; type=object}",
+                                       "consulta_empenho_por_id_itens_compra_alteracao":  "@{properties=; type=object}",
+                                       "EmpenhosV2WithPagination":  "@{properties=; type=object}",
+                                       "MinutaEmpenhoStoreRequest":  ""
+                                   },
+                       "securitySchemes":  {
+                                               "bearerAuth":  "@{type=http; name=Authorization; in=header; bearerFormat=JWT; scheme=bearer}"
+                                           }
+                   }
+}
