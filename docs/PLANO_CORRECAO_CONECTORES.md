@@ -420,5 +420,37 @@ curl "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?dataInicial=20
 
 ---
 
+## 9. Histórico de Resoluções
+
+### 9.1 BLL - Resolução (17/04/2026)
+
+**Problema**: Conector BLL estava como stub vazio, apenas retornando arrays vazios.
+
+**Investigação**: 
+- Pesquisa realizada em https://bllcompras.com/ e https://bll.org.br/
+- **Conclusão**: O BLL Compras não possui API pública de dados abertos
+- A plataforma é fechada e requer autenticação para acesso
+- Não há endpoints documentados para consulta pública de licitações
+
+**Solução Aplicada**:
+1. Removido import do `BllConnector` em `registry.ts`
+2. Comentada a instância no registry com explicação:
+   ```typescript
+   // bll: desativado - não possui API pública (requer scraping com VPS)
+   ```
+3. Atualizado o status no resumo para "✅ Resolvido"
+4. Documentada a seção 2.3 com detalhes da resolução
+
+**Arquivos Alterados**:
+- `lib/integrations/registry.ts` - BLL removido do registry
+- `docs/PLANO_CORRECAO_CONECTORES.md` - Documentação atualizada
+
+**Para Implementação Futura** (se desejado):
+- Requer VPS com Playwright para scraping
+- Custo estimado: R$ 50-100/mês
+- Complexidade: Alta (autenticação + scraping + API interna)
+
+---
+
 *Documento criado em: 17/04/2026*
 *Última atualização: 17/04/2026 - ✅ DEPLOY CONCLUÍDO - https://www.performancepregao.online*
