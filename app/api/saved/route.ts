@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withAuth } from '@/lib/api-security'
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  return withAuth(request, async (ctx) => {
+    const userId = ctx.userId
 
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const userId = (session.user as any).id as string
-
-  try {
     const savedBiddings = await prisma.savedBidding.findMany({
       where: { userId },
       include: {
@@ -28,8 +21,5 @@ export async function GET(request: NextRequest) {
     })
 
     return NextResponse.json({ data: savedBiddings })
-  } catch (error) {
-    console.error('[GET /api/saved]', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
-  }
+  })
 }

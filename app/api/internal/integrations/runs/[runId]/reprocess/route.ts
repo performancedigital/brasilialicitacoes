@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { withAuth } from '@/lib/api-security'
 
 export async function POST(
   _req: NextRequest,
   { params }: { params: { runId: string } }
 ) {
-  const session = await getServerSession(authOptions)
-  if (!session || !['ADMIN', 'SUPERADMIN'].includes(session.user?.role ?? '')) {
-    return NextResponse.json({ error: 'Nao autorizado' }, { status: 401 })
-  }
+  return withAuth(
+    _req,
+    async () => {
+      const { runId } = params
 
-  const { runId } = params
+      const updated = await prisma.integrationRawEvent.updateMany({
+        where: { runId, status: 'FAILED' },
+        data: { status: 'PENDING', errorMessage: null },
+      })
 
-  const updated = await prisma.integrationRawEvent.updateMany({
-    where: { runId, status: 'FAILED' },
-    data: { status: 'PENDING', errorMessage: null },
-  })
-
-  return NextResponse.json({ reprocessed: updated.count })
+      return NextResponse.json({ reprocessed: updated.count })
+    },
+    { requireAdmin: true, skipRateLimit: true }
+  )
 }

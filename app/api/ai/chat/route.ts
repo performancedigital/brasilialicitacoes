@@ -1,46 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { streamText, type CoreMessage } from 'ai'
 import { google } from '@ai-sdk/google'
+import { withAuth, trackTokenUsage } from '@/lib/api-security'
+
+// Estimativa de tokens por mensagem
+const TOKENS_PER_MESSAGE = 500
+const MAX_MESSAGES = 20
 
 export async function POST(request: NextRequest) {
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    return NextResponse.json({ error: 'IA não configurada. Adicione GOOGLE_GENERATIVE_AI_API_KEY nas variáveis de ambiente.' }, { status: 503 })
-  }
+  return withAuth(request, async (ctx) => {
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      return NextResponse.json(
+        { error: 'IA não configurada. Adicione GOOGLE_GENERATIVE_AI_API_KEY nas variáveis de ambiente.' },
+        { status: 503 }
+      )
+    }
 
-  const session = await getServerSession(authOptions)
+    let body: { biddingId: string; messages: CoreMessage[] }
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid JSON body' },
+        { status: 400 }
+      )
+    }
 
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+    const { biddingId, messages } = body
 
-  let body: { biddingId: string; messages: CoreMessage[] }
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
-  }
+    if (!biddingId) {
+      return NextResponse.json(
+        { error: 'biddingId is required' },
+        { status: 400 }
+      )
+    }
 
-  const { biddingId, messages } = body
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { error: 'messages array is required' },
+        { status: 400 }
+      )
+    }
 
-  if (!biddingId) {
-    return NextResponse.json({ error: 'biddingId is required' }, { status: 400 })
-  }
+    if (messages.length > MAX_MESSAGES) {
+      return NextResponse.json(
+        { error: `Maximum ${MAX_MESSAGES} messages allowed` },
+        { status: 400 }
+      )
+    }
 
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return NextResponse.json({ error: 'messages array is required' }, { status: 400 })
-  }
+    // Verificar rate limiting de tokens
+    const estimatedTokens = messages.length * TOKENS_PER_MESSAGE
+    const tokenCheck = await trackTokenUsage(ctx.userId, ctx.planType, estimatedTokens)
+    
+    if (!tokenCheck.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Token limit exceeded',
+          message: `Limite de tokens excedido. Restante: ${tokenCheck.tokensRemaining}`,
+          tokensRemaining: tokenCheck.tokensRemaining,
+          tokensLimit: tokenCheck.tokensLimit,
+        },
+        { status: 429 }
+      )
+    }
 
-  try {
     const bidding = await prisma.bidding.findUnique({
       where: { id: biddingId },
       select: { rawText: true, title: true, organ: true },
     })
 
     if (!bidding) {
-      return NextResponse.json({ error: 'Bidding not found' }, { status: 404 })
+      return NextResponse.json(
+        { error: 'Bidding not found' },
+        { status: 404 }
+      )
     }
 
     const biddingContext = bidding.rawText
@@ -60,9 +95,12 @@ Responda às perguntas do usuário de forma direta, objetiva e em português. Ba
       messages,
     })
 
-    return result.toDataStreamResponse()
-  } catch (error) {
-    console.error('[POST /api/ai/chat]', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
-  }
+    const response = result.toDataStreamResponse()
+    
+    // Adicionar headers de token usage
+    response.headers.set('X-Token-Limit', String(tokenCheck.tokensLimit))
+    response.headers.set('X-Token-Remaining', String(tokenCheck.tokensRemaining))
+    
+    return response
+  })
 }

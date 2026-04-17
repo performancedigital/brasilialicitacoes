@@ -3,6 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
+import { getServerSession } from 'next-auth/next'
+import { NextRequest } from 'next/server'
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
@@ -63,4 +65,68 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
+}
+
+/**
+ * Obtém o ID do usuário autenticado
+ * @throws Error se usuário não estiver autenticado
+ */
+export async function getCurrentUserId(): Promise<string> {
+  const session = await getServerSession(authOptions)
+  
+  if (!session?.user) {
+    throw new Error('Unauthorized')
+  }
+  
+  const userId = (session.user as any).id as string
+  
+  if (!userId) {
+    throw new Error('Invalid session: missing user id')
+  }
+  
+  return userId
+}
+
+/**
+ * Obtém a sessão completa do usuário
+ * @throws Error se usuário não estiver autenticado
+ */
+export async function getCurrentSession() {
+  const session = await getServerSession(authOptions)
+  
+  if (!session?.user) {
+    throw new Error('Unauthorized')
+  }
+  
+  return {
+    userId: (session.user as any).id as string,
+    email: session.user.email as string,
+    role: (session.user as any).role as string,
+    status: (session.user as any).status as string,
+    planType: (session.user as any).planType as string,
+  }
+}
+
+/**
+ * Verifica se o usuário tem role de admin
+ */
+export async function requireAdmin(): Promise<void> {
+  const session = await getCurrentSession()
+  
+  if (session.role !== 'ADMIN' && session.role !== 'SUPERADMIN') {
+    throw new Error('Forbidden: Admin access required')
+  }
+}
+
+/**
+ * Helper para APIs: retorna erro 401 ou 403 padronizado
+ */
+export function createAuthErrorResponse(error: Error): { status: number; body: { error: string } } {
+  if (error.message === 'Unauthorized') {
+    return { status: 401, body: { error: 'Unauthorized' } }
+  }
+  if (error.message.includes('Forbidden')) {
+    return { status: 403, body: { error: 'Forbidden' } }
+  }
+  return { status: 500, body: { error: 'Internal Server Error' } }
 }
