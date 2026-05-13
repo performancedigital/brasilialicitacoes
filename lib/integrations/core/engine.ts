@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { PortalType } from '@prisma/client'
 import { IConnector, NormalizedBidding } from './connector.interface'
 import { sha256 } from './crypto'
 
@@ -23,7 +24,7 @@ async function upsertBidding(
   prismaClient: typeof prisma
 ) {
   const portal = await prismaClient.portal.findFirst({
-    where: { type: normalized.portalCode as 'PNCP' | 'COMPRAS_GOV' },
+    where: { type: normalized.portalCode as PortalType },
     select: { id: true },
   })
 

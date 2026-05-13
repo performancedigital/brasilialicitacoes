@@ -44,7 +44,7 @@ export async function GET(
       let health: { ok: boolean; latencyMs: number; message: string } = {
         ok: false,
         latencyMs: 0,
-        message: 'Stub',
+        message: 'Healthcheck nao executado',
       }
       
       try {
@@ -55,7 +55,9 @@ export async function GET(
           latencyMs: rawHealth.latencyMs,
           message: rawHealth.message ?? '',
         }
-      } catch {}
+      } catch (err) {
+        health.message = err instanceof Error ? err.message : 'Erro no healthcheck'
+      }
 
       return NextResponse.json({
         source: sourceRecord,

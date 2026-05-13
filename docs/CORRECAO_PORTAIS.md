@@ -1,19 +1,26 @@
 # Correção de Portais - Documentação
 
 ## Problema
-O deploy foi realizado mas apenas o PNCP estava funcionando. Os outros portais (ComprasNet e municipais) estavam desativados no banco de dados.
+O deploy anterior foi realizado em um cenário com múltiplos conectores, porém a maior parte dos portais estaduais/privados não possui API pública REST estável/documentada. Isso aumentava falhas de sync e custo de manutenção.
 
 ## Causa Root
-Os portais foram desativados no `IntegrationSource` e havia portais antigos (BLL, MUNICIPAL) ativos no banco.
+- Escopo de conectores maior que a capacidade real de integração por API pública
+- Dependência de endpoints não confiáveis para diversos estados
+- Divergência entre portal cadastrado, fonte de integração e health checks
 
 ## Solução
-1. Ativar todos os portais funcionais no `IntegrationSource`
-2. Desativar portais não implementados (BLL, MUNICIPAL)
-3. Fazer novo deploy
+1. Consolidar escopo para duas fontes públicas confiáveis:
+   - `pncp`
+   - `comprasnet`
+2. Ajustar schema e APIs administrativas para refletir esse escopo
+3. Adotar seed oficial para manter cadastro consistente de `Portal` e `IntegrationSource`
+4. Reforçar segurança do cron e rate limiting persistente
 
 ## Portais que devem estar ATIVOS
 - pncp
 - comprasnet
+
+## Portais fora do escopo atual
 - compras-rs
 - compras-bahia
 - compras-amazonas
@@ -24,15 +31,16 @@ Os portais foram desativados no `IntegrationSource` e havia portais antigos (BLL
 - pe-integrado
 - e-lic-sc
 - licitacoes-e
-
-## Portais que devem estar DESATIVADOS
-- bll (requer scraping com VPS)
-- licitanet (stub não implementado)
-- MUNICIPAL (não existe implementação)
+- bll
+- licitanet
 
 ## Status da Correção
-✅ **COMPLETADO** - 17/04/2026
-- Script SQL executado no banco de dados
-- 12 portais ativados
-- 2 portais desativados (BLL, Licitanet)
-- Deploy realizado com sucesso
+✅ **ATUALIZADO** - 13/05/2026
+- Arquitetura consolidada para PNCP + ComprasNet
+- Enum `PortalType` reduzido para 2 valores
+- Seed oficial criado (`prisma/seed.js`)
+- Rate limit migrado para PostgreSQL
+- Cron protegido com `CRON_SECRET` + fallback Vercel
+
+## Documentação complementar
+- `docs/ATUALIZACAO_ARQUITETURA_2026-05.md`

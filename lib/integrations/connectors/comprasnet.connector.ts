@@ -71,7 +71,7 @@ export class ComprasnetConnector implements IConnector {
         const url = `${BASE_URL}/modulo-legado/3_consultarPregoes?dataInicial=${dataInicial}&dataFinal=${dataFinal}&pagina=${pagina}`
         const res = await fetch(url, {
           headers: { 'Accept': 'application/json', 'User-Agent': 'PerformancePregao/1.0' },
-          signal: AbortSignal.timeout(20000),
+          signal: AbortSignal.timeout(30000),
         })
 
         if (!res.ok) {
@@ -111,7 +111,7 @@ export class ComprasnetConnector implements IConnector {
         const url = `${BASE_URL}/modulo-legado/1_consultarLicitacao?dataInicial=${dataInicial}&dataFinal=${dataFinal}&pagina=${pagina}`
         const res = await fetch(url, {
           headers: { 'Accept': 'application/json', 'User-Agent': 'PerformancePregao/1.0' },
-          signal: AbortSignal.timeout(20000),
+          signal: AbortSignal.timeout(30000),
         })
 
         if (!res.ok) {
@@ -207,7 +207,7 @@ export class ComprasnetConnector implements IConnector {
         `${BASE_URL}/modulo-legado/3_consultarPregoes?dataInicial=${today}&dataFinal=${today}&pagina=1`,
         {
           headers: { 'Accept': 'application/json', 'User-Agent': 'PerformancePregao/1.0' },
-          signal: AbortSignal.timeout(15000)
+          signal: AbortSignal.timeout(20000)
         }
       )
 

@@ -7,9 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "prisma:seed": "node prisma/seed.js",
     "postinstall": "prisma generate",
     "deploy": "bash deploy.sh",
     "push": "git add . && git commit -m \"update: $(date +%Y-%m-%d-%H:%M)\" && git push origin main"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@ai-sdk/google": "^0.0.43",

@@ -37,9 +37,8 @@ interface Run {
 }
 
 const ALL_SOURCES = [
-  'pncp', 'comprasnet', 'licitanet', 'bll',
-  'compras-rs', 'compras-bahia', 'compras-amazonas', 'compras-rj',
-  'comprasnet-goias', 'compras-mg', 'banpara', 'pe-integrado', 'e-lic-sc', 'licitacoes-e',
+  'pncp',
+  'comprasnet',
 ]
 
 function statusColor(status: string) {

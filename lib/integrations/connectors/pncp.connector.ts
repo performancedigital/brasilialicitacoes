@@ -26,6 +26,7 @@ interface PncpItem {
 }
 
 function formatDate(d: Date): string {
+  // PNCP espera formato: YYYYMMDD
   return d.toISOString().split('T')[0].replace(/-/g, '')
 }
 
@@ -37,8 +38,18 @@ export class PncpConnector implements IConnector {
     windowStart: Date,
     windowEnd: Date
   ): Promise<FetchResult> {
-    const dataInicial = formatDate(windowStart)
-    const dataFinal = formatDate(windowEnd)
+    // PNCP exige período mínimo de 10 dias — usamos 15 como margem
+    const minPeriodDays = 15
+    let startDate = new Date(windowStart)
+    let endDate = new Date(windowEnd)
+    
+    const diffDays = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    if (diffDays < minPeriodDays) {
+      startDate = new Date(endDate.getTime() - minPeriodDays * 24 * 60 * 60 * 1000)
+    }
+    
+    const dataInicial = formatDate(startDate)
+    const dataFinal = formatDate(endDate)
     const allRecords: unknown[] = []
 
     for (const mod of MODALIDADES) {
@@ -46,37 +57,46 @@ export class PncpConnector implements IConnector {
       let totalPaginas = 1
 
       do {
+        // Endpoint atualizado conforme documentação PNCP
         const url = `${BASE_URL}/contratacoes/publicacao?dataInicial=${dataInicial}&dataFinal=${dataFinal}&codigoModalidadeContratacao=${mod.codigo}&pagina=${pagina}&tamanhoPagina=${PAGE_SIZE}`
         
         try {
           const res = await fetch(url, {
-            headers: { 'Accept': 'application/json', 'User-Agent': 'PerformancePregao/1.0' },
-            signal: AbortSignal.timeout(20000),
+            headers: { 
+              'Accept': 'application/json', 
+              'User-Agent': 'PerformancePregao/1.0'
+            },
+            signal: AbortSignal.timeout(30000),
           })
 
           if (!res.ok) {
             if (res.status === 404) break
-            // Se uma modalidade falhar, continua com as outras
+            if (res.status === 400) {
+              console.error(`PNCP modalidade ${mod.codigo}: Erro 400 - URL: ${url}`)
+              break
+            }
             console.error(`PNCP modalidade ${mod.codigo} pag ${pagina}: HTTP ${res.status}`)
             break
           }
 
           const data = await res.json()
-          const items: PncpItem[] = data.data || data.content || (Array.isArray(data) ? data : [])
+          const items: PncpItem[] = data.data || []
+          
+          if (items.length === 0) break
+          
           allRecords.push(...items)
 
-          totalPaginas = data.totalPaginas ?? data.totalPages ?? 1
+          totalPaginas = data.totalPaginas ?? 1
           pagina++
 
-          if (pagina > totalPaginas || items.length === 0) break
+          if (pagina > totalPaginas) break
 
           await new Promise((r) => setTimeout(r, 300))
         } catch (err) {
-          // Timeout ou erro de rede, continua com proxima modalidade
           console.error(`PNCP modalidade ${mod.codigo} erro:`, err)
           break
         }
-      } while (pagina <= Math.min(totalPaginas, 10)) // max 10 paginas por modalidade
+      } while (pagina <= Math.min(totalPaginas, 20)) // max 20 paginas por modalidade
     }
 
     return {
@@ -119,22 +139,31 @@ export class PncpConnector implements IConnector {
   async healthCheck(): Promise<ConnectorHealth> {
     const start = Date.now()
     try {
-      const today = formatDate(new Date())
-      // Usa Pregão Eletrônico (6) - modalidade mais comum
-      const res = await fetch(
-        `${BASE_URL}/contratacoes/publicacao?dataInicial=${today}&dataFinal=${today}&codigoModalidadeContratacao=6&pagina=1&tamanhoPagina=1`,
-        {
-          headers: { 'Accept': 'application/json', 'User-Agent': 'PerformancePregao/1.0' },
-          signal: AbortSignal.timeout(15000)
-        }
-      )
+      // Periodo de 15 dias (acima do minimo de 10) para garantir compatibilidade
+      const today = new Date()
+      const startDate = new Date(today.getTime() - 15 * 24 * 60 * 60 * 1000)
+      const dataInicial = formatDate(startDate)
+      const dataFinal = formatDate(today)
+      
+      const url = `${BASE_URL}/contratacoes/publicacao?dataInicial=${dataInicial}&dataFinal=${dataFinal}&codigoModalidadeContratacao=6&pagina=1&tamanhoPagina=1`
+      
+      const res = await fetch(url, {
+        headers: { 
+          'Accept': 'application/json', 
+          'User-Agent': 'PerformancePregao/1.0' 
+        },
+        signal: AbortSignal.timeout(20000)
+      })
 
-      // 404 significa que não há dados, mas a API está funcionando
       if (res.status === 404) {
         return { ok: true, latencyMs: Date.now() - start, message: 'API OK (sem dados)' }
       }
 
-      return { ok: res.ok, latencyMs: Date.now() - start, message: `HTTP ${res.status}` }
+      if (res.ok) {
+        return { ok: true, latencyMs: Date.now() - start, message: 'API OK' }
+      }
+
+      return { ok: false, latencyMs: Date.now() - start, message: `HTTP ${res.status}` }
     } catch (err) {
       return { ok: false, latencyMs: Date.now() - start, message: String(err) }
     }

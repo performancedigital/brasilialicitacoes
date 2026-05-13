@@ -98,24 +98,14 @@ Todas as APIs usam o wrapper `withAuth()`:
 
 ## 4. Integrações com Portais de Licitação
 
-### 4.1 Conectores Implementados (14 fontes)
+### 4.1 Conectores Implementados (escopo atual)
 
 | Código | Portal | Status |
 |--------|--------|--------|
 | `pncp` | PNCP (Portal Nacional) | ✅ Ativo |
 | `comprasnet` | ComprasNet | ✅ Ativo |
-| `licitanet` | LicitaNet | ✅ Ativo |
-| `bll` | BLL (Bolsa de Licitações) | ✅ Ativo |
-| `compras-rs` | Compras RS | ✅ Ativo |
-| `compras-bahia` | Compras Bahia | ✅ Ativo |
-| `compras-amazonas` | Compras Amazonas | ✅ Ativo |
-| `compras-rj` | Compras RJ | ✅ Ativo |
-| `comprasnet-goias` | ComprasNet Goiás | ✅ Ativo |
-| `compras-mg` | Compras MG | ✅ Ativo |
-| `banpara` | Banpará | ✅ Ativo |
-| `pe-integrado` | PE Integrado | ✅ Ativo |
-| `e-lic-sc` | E-Lic SC | ✅ Ativo |
-| `licitacoes-e` | Licitações-e | ✅ Ativo |
+
+> Atualização: desde 13/05/2026, o produto opera oficialmente com duas fontes públicas confiáveis (`pncp` e `comprasnet`) para reduzir falhas e custo operacional.
 
 ### 4.2 Arquitetura de Integração
 

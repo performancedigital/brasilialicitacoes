@@ -25,69 +25,18 @@ import {
   YAxis,
   Legend,
 } from 'recharts'
+import { useEffect, useState } from 'react'
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────────
 
-const monthlyData = [
-  { month: 'Ago', disputas: 8, ganhos: 2 },
-  { month: 'Set', disputas: 12, ganhos: 4 },
-  { month: 'Out', disputas: 15, ganhos: 5 },
-  { month: 'Nov', disputas: 11, ganhos: 3 },
-  { month: 'Dez', disputas: 18, ganhos: 7 },
-  { month: 'Jan', disputas: 23, ganhos: 8 },
-]
-
-const statusData = [
-  { name: 'Avaliando', value: 40, color: '#00E5FF' },
-  { name: 'Encaminhado', value: 35, color: '#7B61FF' },
-  { name: 'Vencido', value: 25, color: '#4ADE80' },
-]
-
-const portalData = [
-  { portal: 'PNCP', value: 4250000 },
-  { portal: 'Compras.gov', value: 3100000 },
-  { portal: 'BLL', value: 1850000 },
-  { portal: 'Municipal', value: 620000 },
-]
-
-const stats = [
-  {
-    label: 'Disputas Ativas',
-    value: '23',
-    sub: '+5 esta semana',
-    trend: 'up',
-    icon: Layers,
-    color: 'text-neon',
-    iconBg: 'bg-neon/10 border-neon/20',
-  },
-  {
-    label: 'Taxa de Vitória',
-    value: '34%',
-    sub: '+2% vs mês ant.',
-    trend: 'up',
-    icon: Award,
-    color: 'text-green-400',
-    iconBg: 'bg-green-400/10 border-green-400/20',
-  },
-  {
-    label: 'Valor em Jogo',
-    value: 'R$ 9.8M',
-    sub: 'em 23 editais',
-    trend: 'neutral',
-    icon: DollarSign,
-    color: 'text-neon-purple',
-    iconBg: 'bg-neon-purple/10 border-neon-purple/20',
-  },
-  {
-    label: 'Contratos Ganhos',
-    value: 'R$ 2.4M',
-    sub: 'este mês',
-    trend: 'up',
-    icon: BarChart2,
-    color: 'text-yellow-400',
-    iconBg: 'bg-yellow-400/10 border-yellow-400/20',
-  },
-]
+interface AnalyticsData {
+  savedTotal: number
+  totalBiddings: number
+  totalValue: number
+  byStage: Record<string, number>
+  byPortal: Record<string, number>
+  monthly: { month: string; count: number }[]
+}
 
 // ─── Custom tooltip ───────────────────────────────────────────────────────────
 
@@ -125,9 +74,154 @@ const PieTooltip = ({ active, payload }: any) => {
   return null
 }
 
+// ─── Stage labels and colors ───────────────────────────────────────────────────
+
+const STAGE_LABELS: Record<string, string> = {
+  LEAD: 'Lead',
+  AVALIANDO: 'Avaliando',
+  ENCAMINHADO: 'Encaminhado',
+  VENCIDO: 'Vencido',
+}
+
+const STAGE_COLORS: Record<string, string> = {
+  LEAD: '#00E5FF',
+  AVALIANDO: '#7B61FF',
+  ENCAMINHADO: '#FACC15',
+  VENCIDO: '#4ADE80',
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AnalisePage() {
+  const [data, setData] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/analytics')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((d) => setData(d))
+      .catch(() => setData(null))
+      .finally(() => setLoading(false))
+  }, [])
+
+  // ─── Derived data from API ────────────────────────────────────────────────
+
+  const stats = data
+    ? [
+        {
+          label: 'Disputas Ativas',
+          value: String(data.savedTotal),
+          sub: `de ${data.totalBiddings} licitacoes`,
+          trend: data.savedTotal > 0 ? 'up' : 'neutral',
+          icon: Layers,
+          color: 'text-neon',
+          iconBg: 'bg-neon/10 border-neon/20',
+        },
+        {
+          label: 'Taxa de Vitoria',
+          value:
+            data.savedTotal > 0
+              ? `${Math.round(((data.byStage['VENCIDO'] || 0) / data.savedTotal) * 100)}%`
+              : '0%',
+          sub: data.byStage['VENCIDO'] > 0 ? `${data.byStage['VENCIDO']} vencidos` : 'sem vitorias',
+          trend: (data.byStage['VENCIDO'] || 0) > 0 ? 'up' : 'neutral',
+          icon: Award,
+          color: 'text-green-400',
+          iconBg: 'bg-green-400/10 border-green-400/20',
+        },
+        {
+          label: 'Valor em Jogo',
+          value:
+            data.totalValue >= 1_000_000
+              ? `R$ ${(data.totalValue / 1_000_000).toFixed(1)}M`
+              : data.totalValue >= 1_000
+              ? `R$ ${(data.totalValue / 1_000).toFixed(0)}K`
+              : `R$ ${data.totalValue.toFixed(0)}`,
+          sub: `em ${data.savedTotal} editais`,
+          trend: 'neutral',
+          icon: DollarSign,
+          color: 'text-neon-purple',
+          iconBg: 'bg-neon-purple/10 border-neon-purple/20',
+        },
+        {
+          label: 'Contratos Ganhos',
+          value: String(data.byStage['VENCIDO'] || 0),
+          sub:
+            data.byStage['VENCIDO'] > 0
+              ? `de ${formatCurrency(
+                  Object.entries(data.byPortal).reduce((sum, [, count]) => {
+                    const avgVal = data.totalValue / (data.savedTotal || 1)
+                    return sum + (data.byStage['VENCIDO'] || 0) > 0 ? avgVal : 0
+                  }, 0)
+                )}`
+              : 'sem vitorias',
+          trend: (data.byStage['VENCIDO'] || 0) > 0 ? 'up' : 'neutral',
+          icon: BarChart2,
+          color: 'text-yellow-400',
+          iconBg: 'bg-yellow-400/10 border-yellow-400/20',
+        },
+      ]
+    : []
+
+  const statusData = data
+    ? Object.entries(data.byStage)
+        .filter(([, v]) => v > 0)
+        .map(([key, value]) => ({
+          name: STAGE_LABELS[key] || key,
+          value: data.savedTotal > 0 ? Math.round((value / data.savedTotal) * 100) : 0,
+          count: value,
+          color: STAGE_COLORS[key] || '#94A3B8',
+        }))
+    : []
+
+  const portalData = data
+    ? Object.entries(data.byPortal).map(([portal, count]) => ({
+        portal,
+        value: count,
+      }))
+    : []
+
+  const monthlyData = data
+    ? data.monthly.map((m) => ({
+        month: m.month,
+        disputas: m.count,
+      }))
+    : []
+
+  // ─── Loading state ────────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-2 border-neon border-t-transparent rounded-full" />
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-slate-400">Nao foi possivel carregar os dados de analise.</p>
+      </div>
+    )
+  }
+
+  // ─── Empty state ──────────────────────────────────────────────────────────
+
+  if (data.savedTotal === 0) {
+    return (
+      <div className="space-y-6">
+        <GlassCard className="p-8 text-center">
+          <Layers size={40} className="text-neon mx-auto mb-4" />
+          <h3 className="text-white font-bold text-lg mb-2">Sem dados de analise</h3>
+          <p className="text-slate-400 text-sm max-w-md mx-auto">
+            Salve licitacoes na aba Oportunidades ou Negocios para comecar a ver suas analises aqui.
+          </p>
+        </GlassCard>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats row */}
@@ -170,24 +264,110 @@ export default function AnalisePage() {
         {/* Area chart — Disputas por mês */}
         <GlassCard className="lg:col-span-2 p-6">
           <div className="mb-6">
-            <h3 className="text-white font-bold text-base">Disputas por Mês</h3>
-            <p className="text-slate-500 text-xs mt-1">Comparativo de disputas iniciadas vs. contratos ganhos</p>
+            <h3 className="text-white font-bold text-base">Disputas por Mes</h3>
+            <p className="text-slate-500 text-xs mt-1">Licitacoes salvas nos ultimos 6 meses</p>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={monthlyData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+          {monthlyData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={monthlyData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorDisputas" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00E5FF" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#00E5FF" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: '#64748B', fontSize: 11 }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.05)' }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#64748B', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="disputas"
+                  name="Disputas"
+                  stroke="#00E5FF"
+                  strokeWidth={2}
+                  fill="url(#colorDisputas)"
+                  dot={{ r: 4, fill: '#00E5FF', strokeWidth: 0 }}
+                  activeDot={{ r: 6, fill: '#00E5FF' }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-slate-500 text-sm text-center py-10">Sem dados mensais</p>
+          )}
+        </GlassCard>
+
+        {/* Pie chart — Status */}
+        <GlassCard className="p-6">
+          <div className="mb-6">
+            <h3 className="text-white font-bold text-base">Status das Disputas</h3>
+            <p className="text-slate-500 text-xs mt-1">Distribuicao por estagio</p>
+          </div>
+          {statusData.length > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={160}>
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={75}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={index} fill={entry.color} stroke="transparent" />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<PieTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-2 mt-2">
+                {statusData.map((d) => (
+                  <div key={d.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
+                      <span className="text-slate-400 text-xs">{d.name}</span>
+                    </div>
+                    <span className="font-bold text-xs text-white">{d.value}% ({d.count})</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-slate-500 text-sm text-center py-10">Sem dados de status</p>
+          )}
+        </GlassCard>
+      </div>
+
+      {/* Bar chart — Valor por Portal */}
+      {portalData.length > 0 && (
+        <GlassCard className="p-6">
+          <div className="mb-6">
+            <h3 className="text-white font-bold text-base">Licitacoes por Portal</h3>
+            <p className="text-slate-500 text-xs mt-1">Quantidade de licitacoes salvas por portal de origem</p>
+          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={portalData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="colorDisputas" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00E5FF" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#00E5FF" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorGanhos" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4ADE80" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#4ADE80" stopOpacity={0} />
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#00E5FF" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#7B61FF" stopOpacity={0.8} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="portal"
                 tick={{ fill: '#64748B', fontSize: 11 }}
                 axisLine={{ stroke: 'rgba(255,255,255,0.05)' }}
                 tickLine={false}
@@ -198,106 +378,11 @@ export default function AnalisePage() {
                 tickLine={false}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend
-                iconType="circle"
-                iconSize={8}
-                wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
-              />
-              <Area
-                type="monotone"
-                dataKey="disputas"
-                name="Disputas"
-                stroke="#00E5FF"
-                strokeWidth={2}
-                fill="url(#colorDisputas)"
-                dot={{ r: 4, fill: '#00E5FF', strokeWidth: 0 }}
-                activeDot={{ r: 6, fill: '#00E5FF' }}
-              />
-              <Area
-                type="monotone"
-                dataKey="ganhos"
-                name="Contratos Ganhos"
-                stroke="#4ADE80"
-                strokeWidth={2}
-                fill="url(#colorGanhos)"
-                dot={{ r: 4, fill: '#4ADE80', strokeWidth: 0 }}
-                activeDot={{ r: 6, fill: '#4ADE80' }}
-              />
-            </AreaChart>
+              <Bar dataKey="value" name="Licitacoes" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         </GlassCard>
-
-        {/* Pie chart — Status */}
-        <GlassCard className="p-6">
-          <div className="mb-6">
-            <h3 className="text-white font-bold text-base">Status das Disputas</h3>
-            <p className="text-slate-500 text-xs mt-1">Distribuição por estágio</p>
-          </div>
-          <ResponsiveContainer width="100%" height={160}>
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={75}
-                paddingAngle={3}
-                dataKey="value"
-              >
-                {statusData.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} stroke="transparent" />
-                ))}
-              </Pie>
-              <Tooltip content={<PieTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          {/* Legend */}
-          <div className="space-y-2 mt-2">
-            {statusData.map((d) => (
-              <div key={d.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
-                  <span className="text-slate-400 text-xs">{d.name}</span>
-                </div>
-                <span className="font-bold text-xs text-white">{d.value}%</span>
-              </div>
-            ))}
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* Bar chart — Valor por Portal */}
-      <GlassCard className="p-6">
-        <div className="mb-6">
-          <h3 className="text-white font-bold text-base">Valor Total por Portal</h3>
-          <p className="text-slate-500 text-xs mt-1">Soma dos valores estimados de editais em disputa por portal de origem</p>
-        </div>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={portalData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00E5FF" stopOpacity={1} />
-                <stop offset="100%" stopColor="#7B61FF" stopOpacity={0.8} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-            <XAxis
-              dataKey="portal"
-              tick={{ fill: '#64748B', fontSize: 11 }}
-              axisLine={{ stroke: 'rgba(255,255,255,0.05)' }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: '#64748B', fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v) => `R$ ${(v / 1_000_000).toFixed(1)}M`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="value" name="Valor em Disputa" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </GlassCard>
+      )}
     </div>
   )
 }

@@ -4,10 +4,8 @@
  * GET /api/test-connectors?etapa=1
  * 
  * Etapas:
- * 1 - APIs Públicas (sem credenciais)
- * 2 - APIs com API Key  
- * 3 - APIs com Token Bearer
- * all - Todas as etapas
+ * 1 - APIs Públicas ativas (PNCP e ComprasNet)
+ * all - Todas as etapas (equivalente à etapa 1)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -19,26 +17,6 @@ const ETAPAS = {
     conectores: [
       'pncp',
       'comprasnet',
-      'compras-amazonas', 
-      'comprasnet-goias',
-      'banpara',
-      'licitacoes-e'
-    ]
-  },
-  2: {
-    nome: 'APIs com API Key',
-    conectores: [
-      'compras-rs',
-      'compras-rj',
-      'pe-integrado'
-    ]
-  },
-  3: {
-    nome: 'APIs com Token Bearer',
-    conectores: [
-      'compras-bahia',
-      'compras-mg',
-      'e-lic-sc'
     ]
   }
 }
@@ -76,7 +54,7 @@ export async function GET(request: NextRequest) {
   if (etapaArg === 'all') {
     const resultados = []
     
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 1; i++) {
       const etapa = ETAPAS[i as keyof typeof ETAPAS]
       const testes = await Promise.all(
         etapa.conectores.map(codigo => testarConector(codigo))
@@ -96,7 +74,7 @@ export async function GET(request: NextRequest) {
   }
   
   const etapaNum = parseInt(etapaArg, 10)
-  if (isNaN(etapaNum) || etapaNum < 1 || etapaNum > 3) {
+  if (isNaN(etapaNum) || etapaNum < 1 || etapaNum > 1) {
     return NextResponse.json(
       { erro: `Etapa inválida: ${etapaArg}` },
       { status: 400 }

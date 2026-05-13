@@ -115,8 +115,6 @@ enum KanbanStage {
 enum PortalType {
   PNCP
   COMPRAS_GOV
-  // BLL       // Removido - requer scraping com VPS
-  // MUNICIPAL // Removido - não implementado
 }
 
 model Alert {
@@ -233,4 +231,16 @@ enum EventStatus {
   PROCESSED
   FAILED
   SKIPPED
+}
+
+model RateLimitEntry {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  count      Int      @default(1)
+  resetAt    DateTime
+  tokensUsed Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([resetAt])
 }
