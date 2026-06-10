@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { streamText, type CoreMessage } from 'ai'
-import { googleAI, AI_MODEL, isAiConfigured } from '@/lib/ai'
+import { getChatModel, isAiConfigured } from '@/lib/ai'
 import { withAuth, trackTokenUsage } from '@/lib/api-security'
 import { pncpEditalUrl, formatCurrency } from '@/lib/utils'
 
@@ -87,7 +87,7 @@ function buildGroundedAnswer(b: BiddingForChat, question: string): string {
 
   linhas.push('')
   if (url) linhas.push(`📄 Edital completo (habilitação, exigências, itens) no portal: ${url}`)
-  linhas.push('_Para análise jurídica detalhada do documento por IA, o administrador pode ativar a IA (chave Gemini)._')
+  linhas.push('_Para análise jurídica detalhada do documento por IA, o administrador pode ativar a IA (chave Groq/OpenAI)._')
   return linhas.join('\n')
 }
 
@@ -181,7 +181,7 @@ ${biddingContext}
 Responda às perguntas do usuário de forma direta, objetiva e em português. Baseie suas respostas nas informações do edital fornecido.`
 
     const result = await streamText({
-      model: googleAI(AI_MODEL),
+      model: getChatModel()!,
       system: systemPrompt,
       messages,
     })

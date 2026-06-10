@@ -35,9 +35,10 @@ function LoginForm() {
     <div className="w-full max-w-md px-6">
       <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
         <div className="text-center mb-8">
-          <div className="text-3xl font-black text-white mb-1">
-            Performance <span className="text-cyan-400">Pregão</span>
+          <div className="text-2xl font-black text-white mb-1 leading-tight tracking-wide">
+            BRASÍLIA
           </div>
+          <p className="text-neon text-[11px] font-semibold tracking-[0.2em] uppercase mb-3">Consultoria em Licitações</p>
           <p className="text-gray-400 text-sm">Acesse sua conta</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -48,7 +49,7 @@ function LoginForm() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-neon transition-colors"
               placeholder="seu@email.com"
             />
           </div>
@@ -59,7 +60,7 @@ function LoginForm() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-neon transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -69,7 +70,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 text-black font-semibold py-3 rounded-lg transition-colors"
+            className="w-full bg-neon hover:bg-neon disabled:opacity-50 text-black font-semibold py-3 rounded-lg transition-colors"
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>

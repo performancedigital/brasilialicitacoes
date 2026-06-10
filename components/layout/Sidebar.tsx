@@ -8,7 +8,7 @@ import {
   LayoutDashboard,
   LogOut,
   Search,
-  Zap,
+  Landmark,
   X,
   Crown,
   ShieldCheck,
@@ -78,12 +78,12 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
         {/* Logo */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-neon flex items-center justify-center flex-shrink-0">
-              <Zap size={16} className="text-black" />
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-neon to-neon-purple flex items-center justify-center flex-shrink-0">
+              <Landmark size={18} className="text-black" />
             </div>
-            <span className="font-bold text-white text-base leading-none">
-              Performance<br />
-              <span className="text-neon">Pregão</span>
+            <span className="font-bold text-white text-sm leading-tight">
+              Brasília<br />
+              <span className="text-neon text-[11px] font-semibold tracking-wide uppercase">Consultoria em Licitações</span>
             </span>
           </div>
           <button

@@ -10,22 +10,22 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Performance Pregão | Inteligência em Licitações',
+  title: 'Brasília Consultoria em Licitações | Inteligência em Licitações Públicas',
   description:
-    'Monitore 19 portais públicos de licitação com IA generativa. Encontre, analise e gerencie editais automaticamente. Ganhe tempo e vença mais disputas.',
+    'Encontre, analise e acompanhe licitações públicas de todo o Brasil (PNCP) com inteligência artificial. Segurança, estratégia, excelência e resultados.',
   keywords: [
     'licitação',
+    'consultoria em licitações',
     'pregão eletrônico',
     'PNCP',
-    'compras gov',
     'edital',
     'inteligência artificial',
     'IA licitação',
   ],
   openGraph: {
-    title: 'Performance Pregão | Inteligência em Licitações',
+    title: 'Brasília Consultoria em Licitações',
     description:
-      'Monitore 19 portais públicos de licitação com IA generativa. Encontre, analise e gerencie editais automaticamente.',
+      'Encontre, analise e acompanhe licitações públicas de todo o Brasil com inteligência artificial.',
     type: 'website',
     locale: 'pt_BR',
   },

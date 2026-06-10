@@ -16,7 +16,7 @@ const QUICK_LINKS = [
   { label: 'Gestão de Usuários', href: '/admin/users', desc: 'Ver e gerenciar todos os usuários, planos e status.', icon: Users },
   { label: 'Portais Monitorados', href: '/admin/portals', desc: 'Status dos portais e health check da coleta.', icon: Globe },
   { label: 'Integrações', href: '/admin/integrations', desc: 'Sincronização PNCP, execuções e fila de erros (DLQ).', icon: Activity },
-  { label: 'IA & Modelos', href: '/admin/ai', desc: 'Configurar a chave do Gemini para o chat e resumos.', icon: Bot },
+  { label: 'IA & Modelos', href: '/admin/ai', desc: 'Configurar a chave da IA (Groq/OpenAI) para chat e resumos.', icon: Bot },
 ]
 
 export default function AdminPage() {
@@ -117,7 +117,7 @@ export default function AdminPage() {
             </div>
             <div className="bg-white/5 rounded-lg p-3">
               <p className="text-gray-500 text-xs">Plano PRO</p>
-              <p className="text-cyan-400 font-bold text-lg">{metrics.byPlan?.PRO ?? 0}</p>
+              <p className="text-neon font-bold text-lg">{metrics.byPlan?.PRO ?? 0}</p>
             </div>
             <div className="bg-white/5 rounded-lg p-3">
               <p className="text-gray-500 text-xs">Infinity Plus</p>

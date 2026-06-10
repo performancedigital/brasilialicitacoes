@@ -3,6 +3,7 @@
 import { ReactNode, useState } from 'react'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
+import { WhatsAppButton } from '@/components/WhatsAppButton'
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
@@ -17,6 +18,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <Header onMobileMenuClick={() => setMobileSidebarOpen(true)} />
         <main className="flex-1 p-6 overflow-x-hidden">{children}</main>
       </div>
+      <WhatsAppButton />
     </div>
   )
 }

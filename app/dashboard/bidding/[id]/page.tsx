@@ -50,7 +50,7 @@ export default function BiddingDetailPage() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-white">
         Edital nao encontrado.
-        <Link href="/dashboard/opportunities" className="text-cyan-400 ml-2">Voltar</Link>
+        <Link href="/dashboard/opportunities" className="text-neon ml-2">Voltar</Link>
       </div>
     )
   }
@@ -105,7 +105,7 @@ export default function BiddingDetailPage() {
           </div>
           <div className="bg-white/5 rounded-lg p-3">
             <p className="text-gray-500 text-xs mb-1">Valor Estimado</p>
-            <p className="text-cyan-400 text-sm font-bold">{bidding.estimatedValue ? fmt(bidding.estimatedValue) : 'Nao informado'}</p>
+            <p className="text-neon text-sm font-bold">{bidding.estimatedValue ? fmt(bidding.estimatedValue) : 'Nao informado'}</p>
           </div>
           <div className="bg-white/5 rounded-lg p-3">
             <p className="text-gray-500 text-xs mb-1">Abertura de Propostas</p>
@@ -115,7 +115,7 @@ export default function BiddingDetailPage() {
           </div>
           <div className="bg-white/5 rounded-lg p-3">
             <p className="text-gray-500 text-xs mb-1">Prazo final (encerramento)</p>
-            <p className={`text-sm font-medium ${isOpen ? 'text-cyan-400' : 'text-slate-500'}`}>
+            <p className={`text-sm font-medium ${isOpen ? 'text-neon' : 'text-slate-500'}`}>
               {bidding.closingDate ? new Date(bidding.closingDate).toLocaleString('pt-BR') : 'Nao informado'}
               {bidding.closingDate && isOpen && (
                 <span className="block text-[11px] text-slate-500 font-normal">{getTimeUntil(bidding.closingDate)}</span>
@@ -129,8 +129,8 @@ export default function BiddingDetailPage() {
         </div>
 
         {bidding.aiSummary && (
-          <div className="bg-cyan-400/5 border border-cyan-400/20 rounded-xl p-4 mb-6">
-            <h3 className="text-cyan-400 font-semibold mb-2">Resumo IA</h3>
+          <div className="bg-neon/5 border border-neon/20 rounded-xl p-4 mb-6">
+            <h3 className="text-neon font-semibold mb-2">Resumo IA</h3>
             <p className="text-gray-300 text-sm whitespace-pre-wrap">{bidding.aiSummary}</p>
           </div>
         )}
@@ -160,7 +160,7 @@ export default function BiddingDetailPage() {
               await fetch(`/api/biddings/${id}/save`, { method: 'POST' })
               setSaved(true)
             }}
-            className="bg-cyan-400 hover:bg-cyan-300 disabled:opacity-60 text-black font-semibold px-4 py-2 rounded-lg text-sm transition-colors"
+            className="bg-neon hover:bg-neon disabled:opacity-60 text-black font-semibold px-4 py-2 rounded-lg text-sm transition-colors"
           >
             {saved ? 'Salvo no Kanban' : 'Salvar na Disputa'}
           </button>

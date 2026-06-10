@@ -3,7 +3,8 @@
 import { useSession, signOut } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
 import { Bell, ChevronDown, LogOut, Menu } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 const pageTitles: Record<string, string> = {
@@ -36,12 +37,25 @@ export function Header({ onMobileMenuClick }: HeaderProps) {
     .join('')
     .toUpperCase()
 
-  const [notifications, setNotifications] = useState<{ id: number; text: string; time: string; read: boolean }[]>([])
+  const router = useRouter()
+  const [notifications, setNotifications] = useState<{ id: string; text: string; time: string; read: boolean; href?: string }[]>([])
+
+  useEffect(() => {
+    fetch('/api/notifications')
+      .then((r) => (r.ok ? r.json() : { notifications: [] }))
+      .then((d) => setNotifications(d.notifications ?? []))
+      .catch(() => setNotifications([]))
+  }, [])
 
   const unreadCount = notifications.filter((n) => !n.read).length
 
   function markAllRead() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+  }
+
+  function openNotif(href?: string) {
+    setNotifOpen(false)
+    if (href) router.push(href)
   }
 
   return (
@@ -105,6 +119,7 @@ export function Header({ onMobileMenuClick }: HeaderProps) {
                 {notifications.map((notif) => (
                   <div
                     key={notif.id}
+                    onClick={() => openNotif(notif.href)}
                     className={cn(
                       'px-4 py-3 hover:bg-white/5 transition-colors cursor-pointer',
                       !notif.read && 'bg-neon/5'

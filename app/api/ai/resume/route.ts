@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { streamText } from 'ai'
-import { googleAI, AI_MODEL, isAiConfigured } from '@/lib/ai'
+import { getChatModel, isAiConfigured } from '@/lib/ai'
 import { withAuth, trackTokenUsage } from '@/lib/api-security'
 
 // Estimativa de tokens para resumo
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     const userMessage = bidding.rawText ?? `Edital: ${bidding.title} - ${bidding.organ}`
 
     const result = await streamText({
-      model: googleAI(AI_MODEL),
+      model: getChatModel()!,
       system:
         'Você é um especialista em licitações públicas brasileiras. Analise o edital e forneça um resumo estruturado em português com: 1) Objeto principal, 2) Valor estimado, 3) Requisitos de habilitação mais importantes, 4) Prazos críticos, 5) Pontos de atenção. Seja direto e objetivo.',
       messages: [{ role: 'user', content: userMessage }],

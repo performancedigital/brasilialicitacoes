@@ -23,7 +23,7 @@ export async function createPreference(
     items: [
       {
         id: planKey,
-        title: `Performance Pregão — Plano ${plan.name}`,
+        title: `Brasília Consultoria em Licitações — Plano ${plan.name}`,
         description: `Assinatura mensal do plano ${plan.name}`,
         quantity: 1,
         unit_price: plan.price,

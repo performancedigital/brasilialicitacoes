@@ -44,7 +44,7 @@ function statusColor(status: string) {
   if (status === 'SUCCESS') return 'text-green-400'
   if (status === 'PARTIAL') return 'text-yellow-400'
   if (status === 'FAILED') return 'text-red-400'
-  if (status === 'RUNNING') return 'text-cyan-400'
+  if (status === 'RUNNING') return 'text-neon'
   return 'text-gray-400'
 }
 
@@ -115,14 +115,14 @@ export default function IntegracoesPainel() {
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
-      <h1 className="text-2xl font-bold text-cyan-400 mb-6">Integrações de Dados</h1>
+      <h1 className="text-2xl font-bold text-neon mb-6">Integrações de Dados</h1>
 
       <div className="flex gap-4 mb-6">
         {(['sources', 'runs', 'dlq'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t ? 'bg-cyan-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t ? 'bg-neon text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
           >
             {t === 'sources' ? 'Plataformas' : t === 'runs' ? 'Execuções' : 'DLQ / Erros'}
           </button>
@@ -161,7 +161,7 @@ export default function IntegracoesPainel() {
                 <button
                   onClick={() => handleSync(code)}
                   disabled={loading}
-                  className="w-full mt-1 py-1.5 text-xs rounded-lg bg-cyan-600/20 border border-cyan-600/40 text-cyan-400 hover:bg-cyan-600/30 disabled:opacity-50 transition"
+                  className="w-full mt-1 py-1.5 text-xs rounded-lg bg-neon/20 border border-neon/40 text-neon hover:bg-neon/30 disabled:opacity-50 transition"
                 >
                   {loading ? 'Sincronizando...' : 'Sincronizar Agora'}
                 </button>
@@ -188,7 +188,7 @@ export default function IntegracoesPainel() {
             <tbody>
               {runs.map((r) => (
                 <tr key={r.id} className="border-b border-white/5 hover:bg-white/5">
-                  <td className="py-2 pr-4 text-cyan-400">{r.source.code}</td>
+                  <td className="py-2 pr-4 text-neon">{r.source.code}</td>
                   <td className={`py-2 pr-4 ${statusColor(r.status)}`}>{r.status}</td>
                   <td className="py-2 pr-4">{r.totalFetched}</td>
                   <td className="py-2 pr-4">{r.totalUpserted}</td>

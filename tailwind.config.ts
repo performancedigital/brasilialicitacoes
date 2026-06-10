@@ -9,8 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        neon: '#00E5FF',
-        'neon-purple': '#7B61FF',
+        // Marca Brasilia Consultoria: dourado + azul-marinho.
+        // (mantemos os nomes 'neon'/'neon-purple' usados no app, mudando so os valores)
+        neon: '#D4AF37',          // dourado (acento primario)
+        'neon-purple': '#1E4488', // azul-marinho (acento secundario)
+        gold: '#D4AF37',
+        navy: '#1E4488',
         dark: {
           DEFAULT: '#000000',
           800: '#0A0A0A',
@@ -20,9 +24,9 @@ const config: Config = {
         },
       },
       boxShadow: {
-        neon: '0 0 20px rgba(0,229,255,0.3)',
-        'neon-lg': '0 0 40px rgba(0,229,255,0.5)',
-        'neon-purple': '0 0 20px rgba(123,97,255,0.3)',
+        neon: '0 0 20px rgba(212,175,55,0.30)',
+        'neon-lg': '0 0 40px rgba(212,175,55,0.45)',
+        'neon-purple': '0 0 20px rgba(30,68,136,0.35)',
       },
       keyframes: {
         'pulse-neon': {
@@ -58,8 +62,8 @@ const config: Config = {
       },
       backgroundImage: {
         'grid-pattern':
-          'linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px)',
-        'gradient-neon': 'linear-gradient(135deg, #00E5FF 0%, #7B61FF 100%)',
+          'linear-gradient(rgba(212,175,55,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(212,175,55,0.03) 1px, transparent 1px)',
+        'gradient-neon': 'linear-gradient(135deg, #D4AF37 0%, #1E4488 100%)',
         'gradient-dark': 'linear-gradient(180deg, #000000 0%, #0A0A0A 100%)',
       },
       backgroundSize: {
