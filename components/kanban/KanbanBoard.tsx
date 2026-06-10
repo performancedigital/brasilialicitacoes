@@ -9,6 +9,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   closestCorners,
 } from '@dnd-kit/core'
 import {
@@ -138,6 +139,9 @@ function KanbanColumn({ column, items, onDelete, onOpen }: {
   onOpen?: (biddingId: string) => void
 }) {
   const totalValue = items.reduce((sum, i) => sum + (i.estimatedValue ?? 0), 0)
+  // Registra a COLUNA como area soltavel (id = stage). Permite soltar em colunas
+  // vazias e detectar a coluna de destino mesmo sem passar por cima de um card.
+  const { setNodeRef, isOver } = useDroppable({ id: column.id })
 
   return (
     <div className="flex flex-col min-w-[280px] max-w-[320px] flex-1">
@@ -152,7 +156,13 @@ function KanbanColumn({ column, items, onDelete, onOpen }: {
         <span className="text-slate-600 text-[10px]">{formatCurrency(totalValue)}</span>
       </div>
 
-      <div className="flex-1 space-y-2.5 min-h-[200px]">
+      <div
+        ref={setNodeRef}
+        className={cn(
+          'flex-1 space-y-2.5 min-h-[200px] rounded-xl transition-colors',
+          isOver && 'bg-white/5 ring-1 ring-neon/30'
+        )}
+      >
         <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
           {items.map((item) => (
             <KanbanCard key={item.id} item={item} onDelete={onDelete} onOpen={onOpen} />
