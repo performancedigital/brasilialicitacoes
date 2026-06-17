@@ -49,7 +49,7 @@ export default function SuspendedPage() {
           {/* CTAs */}
           <div className="space-y-3">
             <a
-              href="mailto:suporte@performancepregao.online?subject=Conta%20Suspensa%20%E2%80%94%20Solicitar%20Revisão"
+              href="mailto:suporte@brasilialicitacoes.com?subject=Conta%20Suspensa%20%E2%80%94%20Solicitar%20Revisão"
               className="flex items-center justify-center gap-2 w-full bg-red-500 text-white font-semibold py-3 rounded-xl hover:bg-red-400 transition-colors text-sm"
             >
               <Mail size={16} />
@@ -65,7 +65,7 @@ export default function SuspendedPage() {
           </div>
 
           <p className="text-slate-600 text-xs mt-6">
-            suporte@performancepregao.online &bull; Resposta em até 24h úteis
+            suporte@brasilialicitacoes.com &bull; Resposta em até 24h úteis
           </p>
         </div>
       </div>

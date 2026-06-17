@@ -137,7 +137,7 @@ function toDataStream(text: string): string {
 
 /**
  * Resposta "por enquanto" sem IA: usa apenas os dados REAIS do edital (sem inventar).
- * Vira IA completa assim que GEMINI_API_KEY for configurada.
+ * Vira IA completa assim que GROQ_API_KEY (ou OPENAI_API_KEY) for configurada.
  */
 function buildGroundedAnswer(b: BiddingForChat, question: string): string {
   const q = (question || '').toLowerCase()

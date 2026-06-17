@@ -61,7 +61,7 @@ export class PncpConnector implements IConnector {
     for (let attempt = 0; attempt <= MAX_PAGE_RETRIES; attempt++) {
       try {
         const res = await fetch(url, {
-          headers: { Accept: 'application/json', 'User-Agent': 'PerformancePregao/1.0' },
+          headers: { Accept: 'application/json', 'User-Agent': 'BrasiliaLicitacoes/1.0' },
           signal: AbortSignal.timeout(30000),
         })
 
@@ -193,7 +193,7 @@ export class PncpConnector implements IConnector {
       const res = await fetch(`${BASE_URL}/contratacoes/publicacao?dataInicial=20260101&dataFinal=20260116&codigoModalidadeContratacao=6&pagina=1&tamanhoPagina=10`, {
         headers: {
           'Accept': 'application/json',
-          'User-Agent': 'PerformancePregao/1.0',
+          'User-Agent': 'BrasiliaLicitacoes/1.0',
         },
         signal: AbortSignal.timeout(15000),
       })

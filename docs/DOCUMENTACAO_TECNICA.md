@@ -1,20 +1,20 @@
-# Documentação Técnica - SAAS Pregão
+# Documentação Técnica - Brasília Consultoria em Licitações
 
-## Data: 17/04/2026
-## Versão: 1.0
+## Data: 16/06/2026
+## Versão: 1.1
 
 ---
 
 ## 1. Visão Geral do Sistema
 
-O **SAAS Pregão** é uma plataforma de inteligência para licitações públicas brasileiras. O sistema coleta, processa e disponibiliza editais de licitação de múltiplos portais governamentais.
+A **Brasília Consultoria em Licitações** é uma plataforma de inteligência para licitações públicas brasileiras. O sistema coleta, processa e disponibiliza editais de licitação de múltiplos portais governamentais.
 
 ### Tecnologias Principais
 - **Frontend**: Next.js 14 + React 18 + TypeScript
 - **Backend**: API Routes do Next.js
 - **Banco de Dados**: PostgreSQL + Prisma ORM
 - **Autenticação**: NextAuth.js com JWT
-- **IA**: Google Gemini (via AI SDK)
+- **IA**: Groq (Llama 3.3 70B, gratuito — padrão) com fallback OpenAI gpt-4o-mini (via AI SDK)
 - **Pagamentos**: MercadoPago
 - **Deploy**: Vercel
 
@@ -297,7 +297,6 @@ model AnalyticsSnapshot {
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | `/api/webhooks/mercadopago` | Webhook de pagamentos |
-| POST | `/api/n8n-receiver` | Receptor de dados (legado) |
 
 ---
 
@@ -322,8 +321,8 @@ vercel deploy --prod -y
 
 | Ambiente | URL |
 |----------|-----|
-| Produção | https://www.performancepregao.online |
-| Preview | https://performance-pregao-*.vercel.app |
+| Produção | https://www.brasilialicitacoes.com |
+| Preview | https://brasilia-licitacoes-*.vercel.app |
 
 ### 7.3 Configuração Vercel
 
@@ -351,9 +350,9 @@ O Vercel está configurado com:
 ### 8.2 Prioridade Média
 
 3. **IA Chat Completo**
-   - [ ] Remover `MOCK_RESPONSES` do frontend
-   - [ ] Integrar completamente com API Gemini
-   - [ ] Usar contexto real do edital
+   - [x] Remover `MOCK_RESPONSES` do frontend
+   - [x] Integrar completamente com IA (Groq / OpenAI)
+   - [x] Usar contexto real do edital
 
 ### 8.3 Prioridade Baixa
 
@@ -370,10 +369,11 @@ DATABASE_URL="postgresql://..."
 
 # Autenticação
 NEXTAUTH_SECRET="..."
-NEXTAUTH_URL="https://www.performancepregao.online"
+NEXTAUTH_URL="https://www.brasilialicitacoes.com"
 
-# Google AI
-GOOGLE_GENERATIVE_AI_API_KEY="..."
+# IA (Groq gratuito é o padrão; OpenAI é fallback opcional)
+GROQ_API_KEY="gsk_..."
+OPENAI_API_KEY=""
 
 # MercadoPago
 MP_ACCESS_TOKEN="..."
@@ -381,7 +381,6 @@ MP_WEBHOOK_SECRET="..."
 
 # Integrações
 CRON_SECRET="..."
-N8N_WEBHOOK_SECRET="..."
 ```
 
 ---

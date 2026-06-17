@@ -137,7 +137,7 @@ model Alert {
 }
 
 // ============================================================
-// MODULO DE INTEGRACOES INTERNAS (substitui n8n)
+// MODULO DE INTEGRACOES INTERNAS (engine propria de coleta de licitacoes)
 // ============================================================
 
 model IntegrationSource {

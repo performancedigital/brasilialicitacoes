@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   return withAuth(request, async (ctx) => {
     if (!isAiConfigured()) {
       return NextResponse.json(
-        { error: 'IA não configurada. Adicione GEMINI_API_KEY nas variáveis de ambiente.' },
+        { error: 'IA não configurada. Adicione GROQ_API_KEY (ou OPENAI_API_KEY) nas variáveis de ambiente.' },
         { status: 503 }
       )
     }
