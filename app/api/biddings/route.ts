@@ -8,7 +8,16 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = sanitizeSearchInput(searchParams.get('search'))
     const portal = searchParams.get('portal')
-    const state = sanitizeSearchInput(searchParams.get('state'))
+    // Suporta multiplos estados via "states=SP,RJ,MG" e mantem compat com "state=SP" (legado)
+    const statesParam = searchParams.get('states')
+    const stateSingle = sanitizeSearchInput(searchParams.get('state'))
+    const states = Array.from(
+      new Set(
+        [...(statesParam ? statesParam.split(',') : []), stateSingle ?? '']
+          .map((s) => s.trim().toUpperCase())
+          .filter((s) => /^[A-Z]{2}$/.test(s))
+      )
+    )
     const modality = sanitizeSearchInput(searchParams.get('modality'))
     const minValue = searchParams.get('minValue')
     const onlyActive = searchParams.get('onlyActive') !== 'false'
@@ -45,8 +54,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (state) {
-      where.state = state
+    if (states.length === 1) {
+      where.state = states[0]
+    } else if (states.length > 1) {
+      where.state = { in: states }
     }
 
     if (modality) {

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useCallback, useEffect, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { BiddingCard } from '@/components/bidding/BiddingCard'
 import { SkeletonCard } from '@/components/ui/SkeletonRow'
 import { NeonButton } from '@/components/ui/NeonButton'
@@ -41,11 +41,57 @@ interface Bidding {
   portal: { name: string; type: string }
 }
 
-export default function OpportunitiesPage() {
+interface Filters {
+  search: string
+  portal: string
+  states: string[]
+  modality: string
+  minValue: string
+  page: number
+}
+
+function parseStates(value: string | null): string[] {
+  if (!value) return []
+  return Array.from(
+    new Set(
+      value
+        .split(',')
+        .map((s) => s.trim().toUpperCase())
+        .filter((s) => STATES.includes(s))
+    )
+  )
+}
+
+/** Le os filtros aplicados a partir da query string (fonte da verdade). */
+function filtersFromParams(sp: URLSearchParams): Filters {
+  return {
+    search: sp.get('search') ?? '',
+    portal: sp.get('portal') ?? '',
+    states: parseStates(sp.get('states')),
+    modality: sp.get('modality') ?? '',
+    minValue: sp.get('minValue') ?? '',
+    page: Number(sp.get('page')) || 1,
+  }
+}
+
+function LoadingGrid() {
+  return (
+    <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+    </div>
+  )
+}
+
+function OpportunitiesContent() {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const qs = searchParams.toString()
+
+  // Rascunho dos campos (a busca so e aplicada ao clicar "Buscar" / paginar)
   const [search, setSearch] = useState('')
   const [portal, setPortal] = useState('')
-  const [state, setState] = useState('')
+  const [states, setStates] = useState<string[]>([])
   const [modality, setModality] = useState('')
   const [minValue, setMinValue] = useState('')
   const [showFilters, setShowFilters] = useState(false)
@@ -56,22 +102,14 @@ export default function OpportunitiesPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [savingId, setSavingId] = useState<string | null>(null)
 
-  const fetchBiddings = useCallback(async (p: number, overrides?: {
-    search?: string; portal?: string; state?: string; modality?: string; minValue?: string
-  }) => {
+  const fetchBiddings = useCallback(async (f: Filters) => {
     setLoading(true)
-    const s = overrides?.search ?? search
-    const po = overrides?.portal ?? portal
-    const st = overrides?.state ?? state
-    const mo = overrides?.modality ?? modality
-    const mv = overrides?.minValue ?? minValue
-
-    const params = new URLSearchParams({ page: String(p), limit: String(PAGE_SIZE), onlyActive: 'true' })
-    if (s) params.set('search', s)
-    if (po) params.set('portal', po)
-    if (st) params.set('state', st)
-    if (mo) params.set('modality', mo)
-    if (mv) params.set('minValue', mv)
+    const params = new URLSearchParams({ page: String(f.page), limit: String(PAGE_SIZE), onlyActive: 'true' })
+    if (f.search) params.set('search', f.search)
+    if (f.portal) params.set('portal', f.portal)
+    if (f.states.length) params.set('states', f.states.join(','))
+    if (f.modality) params.set('modality', f.modality)
+    if (f.minValue) params.set('minValue', f.minValue)
 
     try {
       const res = await fetch(`/api/biddings?${params}`)
@@ -82,37 +120,57 @@ export default function OpportunitiesPage() {
     } catch {
       setBiddings([])
       setTotal(0)
+      setTotalPages(1)
     }
     setLoading(false)
-  }, [search, portal, state, modality, minValue])
-
-  useEffect(() => {
-    fetchBiddings(page)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page])
-
-  useEffect(() => {
-    fetchBiddings(1)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // A URL e a fonte da verdade: ao montar, voltar/avancar (back/forward) ou
+  // dar refresh, reidrata os campos e refaz a busca a partir da query string.
+  useEffect(() => {
+    const f = filtersFromParams(new URLSearchParams(qs))
+    setSearch(f.search)
+    setPortal(f.portal)
+    setStates(f.states)
+    setModality(f.modality)
+    setMinValue(f.minValue)
+    setPage(f.page)
+    fetchBiddings(f)
+  }, [qs, fetchBiddings])
+
+  /** Grava os filtros na URL; o efeito acima reage e dispara a busca. */
+  function applyToUrl(overrides: Partial<Filters>) {
+    const f: Filters = { search, portal, states, modality, minValue, page, ...overrides }
+    const params = new URLSearchParams()
+    if (f.search) params.set('search', f.search)
+    if (f.portal) params.set('portal', f.portal)
+    if (f.states.length) params.set('states', f.states.join(','))
+    if (f.modality) params.set('modality', f.modality)
+    if (f.minValue) params.set('minValue', f.minValue)
+    if (f.page > 1) params.set('page', String(f.page))
+    const query = params.toString()
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false })
+  }
+
   function handleSearch() {
-    setPage(1)
-    fetchBiddings(1)
+    applyToUrl({ page: 1 })
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') handleSearch()
   }
 
+  function toggleState(uf: string) {
+    setStates((prev) => (prev.includes(uf) ? prev.filter((s) => s !== uf) : [...prev, uf]))
+  }
+
   function clearFilters() {
     setSearch('')
     setPortal('')
-    setState('')
+    setStates([])
     setModality('')
     setMinValue('')
-    setPage(1)
-    fetchBiddings(1, { search: '', portal: '', state: '', modality: '', minValue: '' })
+    router.replace(pathname, { scroll: false })
   }
 
   async function handleSave(id: string) {
@@ -124,11 +182,10 @@ export default function OpportunitiesPage() {
   }
 
   function handlePageChange(newPage: number) {
-    setPage(newPage)
-    fetchBiddings(newPage)
+    applyToUrl({ page: newPage })
   }
 
-  const hasActiveFilters = search || portal || state || modality || minValue
+  const hasActiveFilters = Boolean(search || portal || states.length || modality || minValue)
 
   function portalDisplay(b: Bidding) {
     return b.portal?.name ?? b.portal?.type ?? '-'
@@ -177,47 +234,74 @@ export default function OpportunitiesPage() {
 
         {/* Expanded filters */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div>
-              <label className="text-xs text-slate-500 mb-1.5 block">Portal</label>
-              <select value={portal} onChange={(e) => setPortal(e.target.value)}
-                className="input-neon w-full rounded-xl px-3 py-2 text-sm appearance-none cursor-pointer">
-                {PORTALS.map((p) => (
-                  <option key={p.value} value={p.value} className="bg-gray-900">{p.label}</option>
-                ))}
-              </select>
+          <div className="mt-4 pt-4 border-t border-white/10 space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <div>
+                <label className="text-xs text-slate-500 mb-1.5 block">Portal</label>
+                <select value={portal} onChange={(e) => setPortal(e.target.value)}
+                  className="input-neon w-full rounded-xl px-3 py-2 text-sm appearance-none cursor-pointer">
+                  {PORTALS.map((p) => (
+                    <option key={p.value} value={p.value} className="bg-gray-900">{p.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 mb-1.5 block">Modalidade</label>
+                <select value={modality} onChange={(e) => setModality(e.target.value)}
+                  className="input-neon w-full rounded-xl px-3 py-2 text-sm appearance-none cursor-pointer">
+                  {MODALITIES.map((m) => (
+                    <option key={m.value} value={m.value} className="bg-gray-900">{m.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-slate-500 mb-1.5 block">Valor minimo (R$)</label>
+                <input
+                  type="number"
+                  placeholder="Ex: 50000"
+                  value={minValue}
+                  onChange={(e) => setMinValue(e.target.value)}
+                  className="input-neon w-full rounded-xl px-3 py-2 text-sm"
+                />
+              </div>
             </div>
+
+            {/* Estados (selecao multipla via chips) */}
             <div>
-              <label className="text-xs text-slate-500 mb-1.5 block">Estado</label>
-              <select value={state} onChange={(e) => setState(e.target.value)}
-                className="input-neon w-full rounded-xl px-3 py-2 text-sm appearance-none cursor-pointer">
-                <option value="" className="bg-gray-900">Todos</option>
-                {STATES.map((s) => (
-                  <option key={s} value={s} className="bg-gray-900">{s}</option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs text-slate-500">
+                  Estados {states.length > 0 && <span className="text-neon">({states.length} selecionado{states.length !== 1 ? 's' : ''})</span>}
+                </label>
+                {states.length > 0 && (
+                  <button onClick={() => setStates([])} className="text-[11px] text-slate-500 hover:text-red-400 transition-colors">
+                    Limpar estados
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {STATES.map((uf) => {
+                  const active = states.includes(uf)
+                  return (
+                    <button
+                      key={uf}
+                      type="button"
+                      onClick={() => toggleState(uf)}
+                      aria-pressed={active}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        active
+                          ? 'bg-neon text-black'
+                          : 'border border-white/10 text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/5'
+                      }`}
+                    >
+                      {uf}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-            <div>
-              <label className="text-xs text-slate-500 mb-1.5 block">Modalidade</label>
-              <select value={modality} onChange={(e) => setModality(e.target.value)}
-                className="input-neon w-full rounded-xl px-3 py-2 text-sm appearance-none cursor-pointer">
-                {MODALITIES.map((m) => (
-                  <option key={m.value} value={m.value} className="bg-gray-900">{m.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-slate-500 mb-1.5 block">Valor minimo (R$)</label>
-              <input
-                type="number"
-                placeholder="Ex: 50000"
-                value={minValue}
-                onChange={(e) => setMinValue(e.target.value)}
-                className="input-neon w-full rounded-xl px-3 py-2 text-sm"
-              />
-            </div>
+
             {hasActiveFilters && (
-              <div className="col-span-2 lg:col-span-4 flex justify-end">
+              <div className="flex justify-end">
                 <button onClick={clearFilters} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-red-400 transition-colors">
                   <X size={13} /> Limpar filtros
                 </button>
@@ -242,9 +326,7 @@ export default function OpportunitiesPage() {
 
       {/* Results grid */}
       {loading ? (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
-        </div>
+        <LoadingGrid />
       ) : biddings.length === 0 ? (
         <GlassCard className="p-16 text-center">
           <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
@@ -321,5 +403,13 @@ export default function OpportunitiesPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function OpportunitiesPage() {
+  return (
+    <Suspense fallback={<LoadingGrid />}>
+      <OpportunitiesContent />
+    </Suspense>
   )
 }
